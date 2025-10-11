@@ -17,7 +17,7 @@ function Home({ isLoggedIn, setIsLoggedIn }) {
  useEffect(() => {
     const fetchUser = async () => {
       try {
-        const res = await fetch('http://localhost:5000/api/auth/me', {
+        const res = await fetch('https://ai-application-post-create.onrender.com/api/auth/me', {
           credentials: 'include',
         });
         const data = await res.json();
@@ -75,7 +75,7 @@ function Home({ isLoggedIn, setIsLoggedIn }) {
       setTopic('');
 
       // Deduct credits
-      const creditRes = await fetch('http://localhost:5000/api/credit/deduct', {
+      const creditRes = await fetch('https://ai-application-post-create.onrender.com/api/credit/deduct', {
         method: 'POST',
         credentials: 'include',
         headers: { 'Content-Type': 'application/json' },
