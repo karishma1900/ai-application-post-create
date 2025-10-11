@@ -1,6 +1,3 @@
-New Chat
-117 lines
-
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const crypto = require('crypto');
