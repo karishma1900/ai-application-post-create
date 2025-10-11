@@ -35,8 +35,8 @@ async function register(req, res) {
       secure: true,  // true in prod (HTTPS required on Render)
       sameSite: isProduction ? 'none' : 'lax',  // 'none' for cross-origin in prod; 'lax' otherwise
       maxAge: 7 * 24 * 60 * 60 * 1000,  // 7 days
-      domain: isProduction ? '.onrender.com' : undefined,  // Render domain
-      path: '/',
+      
+    
     });
     // Send response (no token in body for security)
     res.json({
@@ -68,8 +68,7 @@ async function login(req, res) {
       secure: isProduction,
       sameSite: isProduction ? 'none' : 'lax',
       maxAge: 7 * 24 * 60 * 60 * 1000,
-      domain: isProduction ? '.onrender.com' : undefined,
-      path: '/',
+    
     });
     res.json({
       message: 'Logged in',
