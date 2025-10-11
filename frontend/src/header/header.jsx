@@ -149,7 +149,8 @@ const handleLoginSuccess = (userData) => {
                 closeModal={() => {
                   // Re-check login state after login
                   setIsModalOpen(false);
-                  setTimeout(() => window.location.reload(), 500); // force reload to update UI
+                  setTimeout(() => window.location.reload(), 500);
+                   onLoginSuccess={handleLoginSuccess} // force reload to update UI
                 }}
               />
             )}
