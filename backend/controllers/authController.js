@@ -12,7 +12,7 @@ const getGravatar = (email) => {
   const hash = md5(email.trim().toLowerCase());
   return `https://www.gravatar.com/avatar/${hash}?d=identicon`;
 };
-const isProduction = true; 
+const isProduction = false; 
 async function register(req, res) {
   const { name, email, password } = req.body;
   const existing = await User.findOne({ email });
