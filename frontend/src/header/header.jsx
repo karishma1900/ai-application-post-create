@@ -9,9 +9,13 @@ const Header = ({ isLoggedIn, setIsLoggedIn }) => {
   // const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [userEmail, setUserEmail] = useState('');
   const [profileImage, setProfileImage] = useState('');
+ 
+// Header.js
 
 useEffect(() => {
-  const getGravatar = async (email) => {
+  // Use a variable to track if the request is still valid
+  let isRequestStale = false; 
+ const getGravatar = async (email) => {
     const hash = await md5(email.trim().toLowerCase());
     return `https://www.gravatar.com/avatar/${hash}?d=identicon`;
   };
@@ -24,6 +28,9 @@ useEffect(() => {
       });
 
       const data = await res.json();
+      
+      // ✅ Check the flag before updating state
+      if (isRequestStale) return; 
 
       if (res.ok) {
         setIsLoggedIn(true);
@@ -32,23 +39,41 @@ useEffect(() => {
         if (data.profileImage) {
           setProfileImage(data.profileImage);
         } else {
-          const gravatarUrl = await getGravatar(data.email);
+          // You need to make this async if your getGravatar uses the crypto API
+          const gravatarUrl = await getGravatar(data.email); 
           setProfileImage(gravatarUrl);
         }
-
         localStorage.setItem('email', data.email);
       } else {
+        // ✅ Check the flag before updating state
+        if (isRequestStale) return;
+        
         setIsLoggedIn(false);
         localStorage.removeItem('email');
       }
     } catch (err) {
+      // ✅ Check the flag before updating state
+      if (isRequestStale) return; 
       console.error('Not logged in', err);
       setIsLoggedIn(false);
     }
   };
 
   checkAuth();
-}, []);
+  
+  // 🧹 Cleanup function: This runs on re-render
+  // If the component re-renders (e.g., after a successful login), 
+  // we mark the previous request as stale.
+  return () => {
+    isRequestStale = true;
+  };
+}, []); 
+// The empty dependency array ensures this runs only on mount, but 
+// the cleanup function handles the subsequent state changes correctly.
+
+
+// NOTE: Also make sure to update your getGravatar function to be async if it uses the crypto API as shown in your original code.
+// const md5 = (string) => { ... } // needs to be used with await if inside an async function
 const handleLoginSuccess = (userData) => {
   setIsLoggedIn(true);
   setUserEmail(userData.email);
