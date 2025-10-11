@@ -3,9 +3,9 @@ const cors = require('cors');
 const cookieParser = require('cookie-parser');
 const bodyParser = require('body-parser');
 const mongoose = require('mongoose');
-const authRoutes = require('./routes/auth'); // Assuming you have an auth route
-const creditRoutes = require('./routes/credit'); // Assuming you have a credit route
-const requestRoutes = require('./routes/request'); // Assuming you have a request route
+const authRoutes = require('./routes/authRoutes'); // Assuming you have an auth route
+const creditRoutes = require('./routes/creditRoutes'); // Assuming you have a credit route
+const requestRoutes = require('./routes/requestRoutes'); // Assuming you have a request route
 
 const app = express(); // Define app here
 
