@@ -78,7 +78,11 @@ const handleLoginSuccess = (userData) => {
   setIsLoggedIn(true);
   setUserEmail(userData.email);
   setProfileImage(userData.profileImage || getGravatar(userData.email));
-  setIsModalOpen(false);
+  setIsModalOpen(false); 
+  localStorage.setItem('authToken', token); // Storing the token in localStorage
+
+  // Log the token to see it in the console for debugging
+  console.log('Login successful, token:', token);
 };
 
   const getGravatar = (email) => {
