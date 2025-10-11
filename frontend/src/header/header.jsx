@@ -145,14 +145,13 @@ const handleLoginSuccess = (userData) => {
             <button className="close-btn" onClick={closeModal}>&times;</button>
             {modalType === 'login' && (
               <Login
-                openRegisterModal={openRegisterModal}
-                closeModal={() => {
-                  // Re-check login state after login
-                  setIsModalOpen(false);
-                  setTimeout(() => window.location.reload(), 500);
-                   onLoginSuccess={handleLoginSuccess} // force reload to update UI
-                }}
-              />
+  openRegisterModal={openRegisterModal}
+  closeModal={() => {
+    setIsModalOpen(false);
+    setTimeout(() => window.location.reload(), 500);
+  }}
+  onLoginSuccess={handleLoginSuccess}  // Pass as a prop here
+/>
             )}
             {modalType === 'register' && (
               <Register
