@@ -1,8 +1,11 @@
+const jwt = require('jsonwebtoken');
+const User = require('../models/User');
+
 async function authMiddleware(req, res, next) {
+  // ✅ Get token from HTTP-only cookie
   const token = req.cookies.token;
 
   if (!token) {
-    console.error("Authorization failed: No token provided.");
     return res.status(401).json({ error: 'Unauthorized: No token provided' });
   }
 
@@ -10,15 +13,13 @@ async function authMiddleware(req, res, next) {
     const payload = jwt.verify(token, process.env.JWT_SECRET);
 
     const user = await User.findById(payload.userId);
-    if (!user) {
-      console.error(`Error: User with ID ${payload.userId} not found.`);
-      return res.status(401).json({ error: 'Unauthorized: User not found' });
-    }
+    if (!user) throw new Error('User not found');
 
     req.user = user;
     next();
   } catch (err) {
-    console.error(`Authorization failed: ${err.message}`);
     return res.status(401).json({ error: 'Unauthorized: Invalid token' });
   }
 }
+
+module.exports = authMiddleware;
