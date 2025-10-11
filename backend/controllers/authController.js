@@ -1,36 +1,41 @@
-import bcrypt from 'bcrypt';
-import jwt from 'jsonwebtoken';
-import crypto from 'crypto';
-import User from '../models/User.js';  // add .js if needed
-import md5 from 'blueimp-md5';
-const INITIAL_CREDITS = 100;
-const getGravatar = (email) => {
-  const hash = md5(email.trim().toLowerCase());
-  return `https://www.gravatar.com/avatar/${hash}?d=identicon`;
-};
-// Use env var instead of hardcoded
-const isProduction = process.env.NODE_ENV === 'production';
-async function register(req, res) {
-  const { name, email, password } = req.body;
-  const existing = await User.findOne({ email });
-  if (existing) {
-    return res.status(400).json({ error: 'User already exists' });
+New Chat
+117 lines
+
+    const token = jwt.sign({ userId: user._id }, process.env.JWT_SECRET);
+    // Set cookie with production-safe options
+    res.cookie('token', token, {
+      httpOnly: true,
+      secure: isProduction,
+      sameSite: isProduction ? 'none' : 'lax',
+      maxAge: 7 * 24 * 60 * 60 * 1000,
+      domain: isProduction ? '.onrender.com' : undefined,
+      path: '/',
+    });
+    res.json({
+      message: 'Logged in',
+      email: user.email,
+      credits: user.credits,
+      profileImage: user.profileImage,
+    });
+  } catch (err) {
+    console.error('Login error:', err);
+    res.status(500).json({ error: 'Internal server error' });
   }
-  const hash = await bcrypt.hash(password, 10);
-  const profileImage = getGravatar(email);
-  const newUser = new User({
-    name,
-    email,
-    passwordHash: hash,
-    credits: INITIAL_CREDITS,
-    creditsExpiry: null,
-    profileImage,
-  });
-  await newUser.save();
-  // Generate JWT token
-  const token = jwt.sign({ userId: newUser._id }, process.env.JWT_SECRET);
-  // Set cookie with production-safe options
-  res.cookie('token', token, {
-    httpOnly: true,
-    secure: isProduction,  // true in prod (HTTPS required on Render)
-    sameSite: isProduction ? 'none' : 'lax',  // 'none' for cross-origin in prod; 'lax' otherwise
+}
+function logout(req, res) {
+  try {
+    // Clear cookie with matching options
+    res.clearCookie('token', {
+      httpOnly: true,
+      secure: isProduction,
+      sameSite: isProduction ? 'none' : 'lax',
+      domain: isProduction ? '.onrender.com' : undefined,
+      path: '/',
+    });
+    res.json({ message: 'Logged out' });
+  } catch (err) {
+    console.error('Logout error:', err);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+}
+module.exports = { register, login, logout };
