@@ -143,7 +143,7 @@ useEffect(() => {
               closeModal={() => {
                 closeLoginModal();
                 // After login success, re-fetch user info & credits
-                fetch('https://ai-application-post-create.onrender.com/api/auth/me', { credentials: 'include' })
+                fetch('https://ai-application-post-create.vercel.app/api/auth/me', { credentials: 'include' })
                   .then(res => res.json())
                   .then(data => {
                     if (data.credits !== undefined) {
