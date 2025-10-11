@@ -14,27 +14,28 @@ function Home({ isLoggedIn, setIsLoggedIn }) {
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   // Fetch user data and auth status
- useEffect(() => {
-    const fetchUser = async () => {
-      try {
-        const res = await fetch('https://ai-application-post-create.onrender.com/api/auth/me', {
-          credentials: 'include',
-        });
-        const data = await res.json();
-        if (res.ok) {
-          setCredits(data.credits);
-          setIsLoggedIn(true);
-        } else {
-          setIsLoggedIn(false);
-        }
-      } catch (err) {
-        console.error('Failed to fetch user data:', err);
-        setIsLoggedIn(false);
+useEffect(() => {
+  const fetchUser = async () => {
+    try {
+      const res = await fetch('https://ai-application-post-create.onrender.com/api/auth/me', {
+        credentials: 'include', // Make sure to include credentials (cookies)
+      });
+      const data = await res.json();
+      if (res.ok) {
+        setCredits(data.credits);
+        setIsLoggedIn(true);
+      } else {
+        setIsLoggedIn(false); // If not authorized, update state accordingly
       }
-    };
+    } catch (err) {
+      console.error('Failed to fetch user data:', err);
+      setIsLoggedIn(false);
+    }
+  };
 
-    fetchUser();
-  }, [setIsLoggedIn]);
+  fetchUser();
+}, [setIsLoggedIn]);
+
 
   // Open login modal
   const openLoginModal = () => setIsModalOpen(true);
