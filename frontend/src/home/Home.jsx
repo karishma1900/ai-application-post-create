@@ -19,7 +19,7 @@ useEffect(() => {
 
   const fetchUser = async () => {
     try {
-      const res = await fetch('https://ai-application-post-create.onrender.com/api/auth/me', {
+      const res = await fetch('https://ai-application-post-create.vercel.app/api/auth/me', {
         credentials: 'include',
       });
       const data = await res.json();
@@ -89,7 +89,7 @@ useEffect(() => {
       setTopic('');
 
       // Deduct credits
-      const creditRes = await fetch('https://ai-application-post-create.onrender.com/api/credit/deduct', {
+      const creditRes = await fetch('https://ai-application-post-create.vercel.app/api/credit/deduct', {
         method: 'POST',
         credentials: 'include',
         headers: { 'Content-Type': 'application/json' },
