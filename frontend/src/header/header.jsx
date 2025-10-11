@@ -18,7 +18,7 @@ useEffect(() => {
 
   const checkAuth = async () => {
     try {
-      const res = await fetch('http://localhost:5000/api/auth/me', {
+      const res = await fetch('https://ai-application-post-create.onrender.com/api/auth/me', {
         method: 'GET',
         credentials: 'include',
       });
@@ -85,7 +85,7 @@ const handleLoginSuccess = (userData) => {
 
   const handleLogout = async () => {
     try {
-      const res = await fetch('http://localhost:5000/api/auth/logout', {
+      const res = await fetch('https://ai-application-post-create.onrender.com/api/auth/logout', {
         method: 'POST',
         credentials: 'include',
       });
