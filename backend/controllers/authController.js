@@ -12,7 +12,7 @@ const getGravatar = (email) => {
   const hash = md5(email.trim().toLowerCase());
   return `https://www.gravatar.com/avatar/${hash}?d=identicon`;
 };
-const isProduction = false; 
+const isProduction = true; 
 async function register(req, res) {
   const { name, email, password } = req.body;
   const existing = await User.findOne({ email });
@@ -38,12 +38,11 @@ async function register(req, res) {
 
   // Set cookie (just like login)
 res.cookie('token', token, {
-  httpOnly: true,
-  secure: isProduction,                // true for production (HTTPS), false for local dev
-  sameSite: isProduction ? 'None' : 'Lax', // 'None' for cross-site cookies with secure, 'Lax' for dev
-  maxAge: 7 * 24 * 60 * 60 * 1000,
+    httpOnly: true,
+    secure: isProduction,           // TRUE
+    sameSite: isProduction ? 'None' : 'Lax', // 'None'
+    maxAge: 7 * 24 * 60 * 60 * 1000,
 });
-
 
   // Send response with user info
   res.json({
@@ -76,10 +75,10 @@ async function login(req, res) {
 
   // ✅ SET the cookie HERE
 res.cookie('token', token, {
-  httpOnly: true,
-  secure: isProduction,                // true for production (HTTPS), false for local dev
-  sameSite: isProduction ? 'None' : 'Lax', // 'None' for cross-site cookies with secure, 'Lax' for dev
-  maxAge: 7 * 24 * 60 * 60 * 1000,
+    httpOnly: true,
+    secure: isProduction,           // TRUE
+    sameSite: isProduction ? 'None' : 'Lax', // 'None'
+    maxAge: 7 * 24 * 60 * 60 * 1000,
 });
 
 
