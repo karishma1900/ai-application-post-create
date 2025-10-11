@@ -28,10 +28,15 @@ const app = express();
 app.set('trust proxy', true); 
 // Use CORS middleware globally
 
+const allowedOrigins = process.env.NODE_ENV === "production"
+  ? ['https://ai-application-post-create-1.onrender.com'] // Add production URLs here
+  : ['http://localhost:3000', 'https://ai-application-post-create-1.onrender.com'];
+
 app.use(cors({
-  origin: ['http://localhost:3000', 'https://ai-application-post-create-1.onrender.com'],
+  origin: allowedOrigins,
   credentials: true
 }));
+
 
 
 // For Stripe webhook you need raw body, so you may do conditional
