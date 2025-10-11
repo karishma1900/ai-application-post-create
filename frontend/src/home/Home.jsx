@@ -15,25 +15,38 @@ function Home({ isLoggedIn, setIsLoggedIn }) {
 
   // Fetch user data and auth status
 useEffect(() => {
+  let isRequestStale = false; // Flag to ignore stale requests
+
   const fetchUser = async () => {
     try {
       const res = await fetch('https://ai-application-post-create.onrender.com/api/auth/me', {
-        credentials: 'include', // Make sure to include credentials (cookies)
+        credentials: 'include',
       });
       const data = await res.json();
+
+      // ✅ Check the flag before updating state
+      if (isRequestStale) return; 
+
       if (res.ok) {
         setCredits(data.credits);
         setIsLoggedIn(true);
       } else {
-        setIsLoggedIn(false); // If not authorized, update state accordingly
+        setIsLoggedIn(false);
       }
     } catch (err) {
+      // ✅ Check the flag before updating state
+      if (isRequestStale) return; 
       console.error('Failed to fetch user data:', err);
       setIsLoggedIn(false);
     }
   };
 
   fetchUser();
+
+  // 🧹 Cleanup function
+  return () => {
+    isRequestStale = true;
+  };
 }, [setIsLoggedIn]);
 
 
