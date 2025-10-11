@@ -42,7 +42,7 @@ res.cookie('token', token, {
     secure: true,
     sameSite: 'None',
     maxAge: 7 * 24 * 60 * 60 * 1000,
-    // domain: '.onrender.com', 
+    domain: 'render.com', 
 });
 
   // Send response with user info
@@ -80,7 +80,7 @@ res.cookie('token', token, {
     secure: true,
     sameSite: 'None',
     maxAge: 7 * 24 * 60 * 60 * 1000,
-    // domain: '.onrender.com',
+    domain: 'render.com',
 });
 
 
