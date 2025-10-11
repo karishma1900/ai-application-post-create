@@ -75,12 +75,13 @@ async function login(req, res) {
   const token = jwt.sign({ userId: user._id }, process.env.JWT_SECRET);
 
   // ✅ SET the cookie HERE
-  res.cookie('token', token, {
-    httpOnly: true,
-    secure: false, // ❗ Set to true in production (with HTTPS)
-    sameSite: 'Lax', // Or 'Strict'
-    maxAge: 7 * 24 * 60 * 60 * 1000, // 1 week
-  });
+res.cookie('token', token, {
+  httpOnly: true,
+  secure: process.env.NODE_ENV === 'production', // ✅ true in prod
+  sameSite: process.env.NODE_ENV === 'production' ? 'None' : 'Lax',
+  maxAge: 7 * 24 * 60 * 60 * 1000, // 1 week
+});
+
 
   res.json({
     message: 'Logged in',
