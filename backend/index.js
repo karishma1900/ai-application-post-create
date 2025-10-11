@@ -3,7 +3,7 @@ const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
 const cors = require('cors');  // <-- import cors here
 
-const creditRoutes = require('./routes/CreditRoutes');
+const creditRoutes = require('./routes/creditRoutes');
 const requestRoutes = require('./routes/requestRoutes');
 const authRoutes = require('./routes/authRoutes');
 // In authRoutes.js
