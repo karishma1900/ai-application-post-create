@@ -25,7 +25,7 @@ const User = require('./models/User');
 
 
 const app = express();
-app.set('trust proxy', true); 
+app.set('trust proxy', 1); 
 // Use CORS middleware globally
 
 const allowedOrigins = process.env.NODE_ENV === "production"
