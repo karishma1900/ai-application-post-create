@@ -14,7 +14,7 @@ app.set('trust proxy', 1);
 
 // CORS configuration
 const allowedOrigins = process.env.NODE_ENV === 'production'
-  ? ['https://ai-application-post-create-1.onrender.com','https://frontend-nine-woad-47.vercel.app']  // Your frontend URL
+  ? ['https://ai-application-post-create-1.onrender.com','https://frontend-nine-woad-47.vercel.app','http://localhost:3000']  // Your frontend URL
   : ['http://localhost:3000','https://frontend-nine-woad-47.vercel.app'];  // Local dev (add more if needed)
 
 app.use(cors({
