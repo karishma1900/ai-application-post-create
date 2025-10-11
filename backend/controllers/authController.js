@@ -39,10 +39,11 @@ async function register(req, res) {
   // Set cookie (just like login)
 res.cookie('token', token, {
     httpOnly: true,
-    // secure: true,
-    sameSite: 'None',
-    maxAge: 7 * 24 * 60 * 60 * 1000,
-  domain:.render.com
+    secure: process.env.NODE_ENV === 'production',  // HTTPS only in prod (Render enforces HTTPS)
+       sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',  // 'none' for cross-site (e.g., frontend on different port/domain)
+       maxAge: 24 * 60 * 60 * 1000,  // 24 hours
+       domain: process.env.NODE_ENV === 'production' ? '.onrender.com' : undefined,  // Match Render's domain (include subdomain wildcard if needed)
+       path: '/'
    
 });
 
@@ -78,10 +79,11 @@ async function login(req, res) {
   // ✅ SET the cookie HERE
 res.cookie('token', token, {
     httpOnly: true,
-    // secure: true,
-    sameSite: 'None',
-    maxAge: 7 * 24 * 60 * 60 * 1000,
-     domain:.render.com
+     secure: process.env.NODE_ENV === 'production',  // HTTPS only in prod (Render enforces HTTPS)
+       sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',  // 'none' for cross-site (e.g., frontend on different port/domain)
+       maxAge: 24 * 60 * 60 * 1000,  // 24 hours
+       domain: process.env.NODE_ENV === 'production' ? '.onrender.com' : undefined,  // Match Render's domain (include subdomain wildcard if needed)
+       path: '/'
 });
 
 
