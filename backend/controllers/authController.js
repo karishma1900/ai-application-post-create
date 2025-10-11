@@ -32,7 +32,7 @@ async function register(req, res) {
     // Set cookie with production-safe options
     res.cookie('token', token, {
       httpOnly: true,
-      secure: isProduction,  // true in prod (HTTPS required on Render)
+      secure: true,  // true in prod (HTTPS required on Render)
       sameSite: isProduction ? 'none' : 'lax',  // 'none' for cross-origin in prod; 'lax' otherwise
       maxAge: 7 * 24 * 60 * 60 * 1000,  // 7 days
       domain: isProduction ? '.onrender.com' : undefined,  // Render domain
@@ -87,7 +87,7 @@ function logout(req, res) {
     // Clear cookie with matching options
     res.clearCookie('token', {
       httpOnly: true,
-      secure: isProduction,
+      secure: true,
       sameSite: isProduction ? 'none' : 'lax',
       domain: isProduction ? '.onrender.com' : undefined,
       path: '/',
