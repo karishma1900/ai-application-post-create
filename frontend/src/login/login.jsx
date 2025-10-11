@@ -10,7 +10,7 @@ const Login = ({ closeModal, openRegisterModal,onLoginSuccess }) => {
     e.preventDefault();
 
     try {
-      const res = await fetch('https://ai-application-post-create.onrender.com/api/auth/login', {
+      const res = await fetch('https://ai-application-post-create.vercel.app/api/auth/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         credentials: 'include',
