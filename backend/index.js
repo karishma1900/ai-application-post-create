@@ -29,7 +29,7 @@ app.set('trust proxy', true); 
 // Use CORS middleware globally
 
 app.use(cors({
-  origin: ['http://localhost:3000', 'https://ai-application-post-create-1.onrender.com'],
+  origin: ['http://localhost:3000', 'https://ai-application-post-create-1.onrender.com/'],
   credentials: true
 }));
 
