@@ -10,7 +10,7 @@ const Login = ({ closeModal, openRegisterModal }) => {
     e.preventDefault();
 
     try {
-      const res = await fetch('http://localhost:5000/api/auth/login', {
+      const res = await fetch('https://ai-application-post-create.onrender.com/api/auth/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         credentials: 'include', // ✅ Required for HTTP-only cookies
