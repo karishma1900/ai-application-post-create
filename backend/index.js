@@ -29,9 +29,10 @@ const app = express();
 // Use CORS middleware globally
 
 app.use(cors({
-  origin: 'http://localhost:3000','https://ai-application-post-create-1.onrender.com', // 👈 Your frontend origin
-  credentials: true               // 👈 Allow cookies (needed for login session)
+  origin: ['http://localhost:3000', 'https://ai-application-post-create-1.onrender.com'],
+  credentials: true
 }));
+
 
 // For Stripe webhook you need raw body, so you may do conditional
 app.use(
