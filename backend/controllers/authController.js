@@ -37,12 +37,13 @@ async function register(req, res) {
   const token = jwt.sign({ userId: newUser._id }, process.env.JWT_SECRET);
 
   // Set cookie (just like login)
-  res.cookie('token', token, {
-    httpOnly: true,
-    secure: false, // change to true in production with HTTPS
-    sameSite: 'Lax',
-    maxAge: 7 * 24 * 60 * 60 * 1000, // 1 week
-  });
+ res.cookie('token', token, {
+  httpOnly: true,
+  secure: process.env.NODE_ENV === 'production', // ✅ true on Render
+  sameSite: process.env.NODE_ENV === 'production' ? 'None' : 'Lax', // ✅ allows cross-site in prod
+  maxAge: 7 * 24 * 60 * 60 * 1000, // 1 week
+});
+
 
   // Send response with user info
   res.json({
