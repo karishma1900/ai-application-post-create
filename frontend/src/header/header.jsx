@@ -74,7 +74,7 @@ useEffect(() => {
 
 // NOTE: Also make sure to update your getGravatar function to be async if it uses the crypto API as shown in your original code.
 // const md5 = (string) => { ... } // needs to be used with await if inside an async function
-const handleLoginSuccess = (userData) => {
+const handleLoginSuccess = (userData , token) => {
   setIsLoggedIn(true);
   setUserEmail(userData.email);
   setProfileImage(userData.profileImage || getGravatar(userData.email));
