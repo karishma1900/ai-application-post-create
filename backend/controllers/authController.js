@@ -39,8 +39,8 @@ async function register(req, res) {
   // Set cookie (just like login)
 res.cookie('token', token, {
     httpOnly: true,
-    secure: isProduction,           // TRUE
-    sameSite: isProduction ? 'None' : 'Lax', // 'None'
+    secure: true,      // FORCE TRUE
+    sameSite: 'None',  // FORCE 'None'
     maxAge: 7 * 24 * 60 * 60 * 1000,
 });
 
@@ -76,8 +76,8 @@ async function login(req, res) {
   // ✅ SET the cookie HERE
 res.cookie('token', token, {
     httpOnly: true,
-    secure: isProduction,           // TRUE
-    sameSite: isProduction ? 'None' : 'Lax', // 'None'
+  secure: true,      // FORCE TRUE
+    sameSite: 'None',  // FORCE 'None'
     maxAge: 7 * 24 * 60 * 60 * 1000,
 });
 
