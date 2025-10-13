@@ -156,11 +156,12 @@ setAccessToken(null);
 
             )}
             {modalType === 'register' && (
-              <Register
+             <Register
   openLoginModal={openLoginModal}
   closeModal={() => setIsModalOpen(false)}
-  onLoginSuccess={handleLoginSuccess}
+  onLoginSuccess={onLoginSuccess}
 />
+
 
             )}
           </div>
@@ -171,6 +172,7 @@ setAccessToken(null);
 };
 
 export default Header;
+
 
 
 
