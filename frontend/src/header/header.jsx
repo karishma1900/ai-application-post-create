@@ -54,49 +54,48 @@ const Header = ({ isLoggedIn, setIsLoggedIn }) => {
       }
     };
 
-    const checkAuth = async () => {
-      let token = localStorage.getItem('accessToken');
-      const isTokenExpired = checkIfTokenExpired(token);
+   const checkAuth = async () => {
+  let token = localStorage.getItem('accessToken');
+  const isTokenExpired = checkIfTokenExpired(token);
 
-      if (isTokenExpired) {
-        const refreshed = await refreshAccessToken();
-        if (!refreshed) {
-          setIsLoggedIn(false);
-          return;
-        }
-        token = localStorage.getItem('accessToken'); // Get new token
+  if (isTokenExpired) {
+    const refreshed = await refreshAccessToken();
+    if (!refreshed) {
+      setIsLoggedIn(false);
+      return;
+    }
+    token = localStorage.getItem('accessToken'); // Get new token
+  }
+
+  try {
+    const res = await fetch('https://ai-application-post-create.onrender.com/api/auth/me', {
+      method: 'GET',
+      headers: {
+        'Authorization': `Bearer ${token}`,
+      },
+      credentials: 'include',  // Make sure credentials are included in the request
+    });
+
+    const data = await res.json();
+    if (res.ok) {
+      setIsLoggedIn(true);
+      setUserEmail(data.email);
+
+      if (data.profileImage) {
+        setProfileImage(data.profileImage);
+      } else {
+        const gravatarUrl = await getGravatar(data.email);
+        setProfileImage(gravatarUrl);
       }
-
-      try {
-        const res = await fetch('https://ai-application-post-create.onrender.com/api/auth/me', {
-          method: 'GET',
-          headers: {
-            'Authorization': `Bearer ${token}`,
-          },
-          credentials: 'include',
-        });
-
-        const data = await res.json();
-
-        if (res.ok) {
-          setIsLoggedIn(true);
-          setUserEmail(data.email);
-
-          if (data.profileImage) {
-            setProfileImage(data.profileImage);
-          } else {
-            const gravatarUrl = await getGravatar(data.email);
-            setProfileImage(gravatarUrl);
-          }
-        } else {
-          setIsLoggedIn(false);
-          localStorage.removeItem('email');
-        }
-      } catch (err) {
-        console.error('Not logged in', err);
-        setIsLoggedIn(false);
-      }
-    };
+    } else {
+      setIsLoggedIn(false);
+      localStorage.removeItem('email');
+    }
+  } catch (err) {
+    console.error('Not logged in', err);
+    setIsLoggedIn(false);
+  }
+};
 
     checkAuth();
   }, []);
@@ -206,3 +205,4 @@ const Header = ({ isLoggedIn, setIsLoggedIn }) => {
 };
 
 export default Header;
+
