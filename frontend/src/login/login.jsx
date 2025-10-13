@@ -7,33 +7,52 @@ const Login = ({ closeModal, openRegisterModal }) => {
   const [password, setPassword] = useState('');
 
  const handleSubmit = async (e) => {
-  e.preventDefault();
-  console.log("Sending login request", { email, password });  // Add this to check values
+    e.preventDefault();
+    console.log("Sending login request", { email, password });
 
-  try {
-    const res = await fetch('https://ai-application-post-create.onrender.com/api/auth/login', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      credentials: 'include',
-      body: JSON.stringify({ email, password }),
-    });
+    try {
+      const res = await fetch('https://ai-application-post-create.onrender.com/api/auth/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify({ email, password }),
+      });
 
-    const data = await res.json();
-    console.log('Status:', res.status, 'Body:', data); // Add this to debug
+      const data = await res.json();
+      console.log('Status:', res.status, 'Body:', data);
 
-    if (!res.ok) {
-      toast.error(data.error || 'Login failed');
-      return;
+      if (!res.ok) {
+        toast.error(data.error || 'Login failed');
+        return;
+      }
+
+      // --- CRUCIAL CHANGE START ---
+      const { accessToken, email, credits, profileImage } = data;
+      
+      // 1. Save the Access Token to Local Storage
+      localStorage.setItem('accessToken', accessToken); 
+      
+      // 2. Call the success handler function passed from the parent Header
+      if (onLoginSuccess) {
+          onLoginSuccess({ email, credits, profileImage });
+      }
+
+      // 3. Optional: Only storing email is okay, but we have the data now.
+      // localStorage.setItem('email', email); 
+      
+      // --- CRUCIAL CHANGE END ---
+
+      toast.success('Login successful!');
+      closeModal();
+      
+      // The Header component will take care of the UI update now
+      // setTimeout(() => window.location.reload(), 500); // You can remove this forced reload later
+      
+    } catch (err) {
+      toast.error('Something went wrong!');
+      console.error(err);
     }
-
-    localStorage.setItem('email', email);
-    toast.success('Login successful!');
-    closeModal();
-  } catch (err) {
-    toast.error('Something went wrong!');
-    console.error(err);
-  }
-};
+  };
 
   return (
     <div>
@@ -73,4 +92,5 @@ const Login = ({ closeModal, openRegisterModal }) => {
 };
 
 export default Login;
+
 
