@@ -49,13 +49,13 @@ async function register(req, res) {
   const refreshToken = generateRefreshToken(newUser);
 
   // Send refresh token as HttpOnly cookie
-  res.cookie('refreshToken', refreshToken, {
-    httpOnly: true,
-    secure: false, // true in production with HTTPS
-    sameSite: 'Strict',
-    path: '/api/auth/refresh',
-    maxAge: 7 * 24 * 60 * 60 * 1000,
-  });
+res.cookie('refreshToken', refreshToken, {
+    httpOnly: true,
+    secure: isProduction, // <--- TRUE in production
+    sameSite: isProduction ? 'None' : 'Lax', // <--- Often needs to be 'None' for cross-domain
+    path: '/api/auth/refresh',
+    maxAge: 7 * 24 * 60 * 60 * 1000,
+});
 
   res.json({
     message: 'Registered and logged in',
@@ -97,13 +97,13 @@ async function login(req, res) {
     console.log('Generated accessToken and refreshToken');  // Log token generation
 
     // Set refresh token as HttpOnly cookie
-    res.cookie('refreshToken', refreshToken, {
-      httpOnly: true,
-      secure: false, // true in production with HTTPS
-      sameSite: 'Strict',
-      path: '/api/auth/refresh',
-      maxAge: 7 * 24 * 60 * 60 * 1000,  // 7 days
-    });
+   res.cookie('refreshToken', refreshToken, {
+    httpOnly: true,
+    secure: isProduction, // <--- TRUE in production
+    sameSite: isProduction ? 'None' : 'Lax', // <--- Often needs to be 'None' for cross-domain
+    path: '/api/auth/refresh',
+    maxAge: 7 * 24 * 60 * 60 * 1000,
+});
 
     // Respond with tokens and user data
     res.json({
@@ -145,4 +145,5 @@ function logout(req, res) {
 }
 
 export { register, login, logout, refreshToken };
+
 
