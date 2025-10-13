@@ -12,14 +12,51 @@ const Header = ({ isLoggedIn, setIsLoggedIn }) => {
 
 useEffect(() => {
   const getGravatar = async (email) => {
-    const hash = await md5(email.trim().toLowerCase());
+    const hash = md5(email.trim().toLowerCase());
     return `https://www.gravatar.com/avatar/${hash}?d=identicon`;
   };
 
+  const refreshAccessToken = async () => {
+    try {
+      const res = await fetch('https://ai-application-post-create.onrender.com/api/auth/refresh', {
+        method: 'POST',
+        credentials: 'include', // For cookies
+      });
+
+      const data = await res.json();
+
+      if (res.ok) {
+        // Store new access token
+        localStorage.setItem('accessToken', data.accessToken);
+        return true;
+      } else {
+        return false;
+      }
+    } catch (err) {
+      console.error('Token refresh failed', err);
+      return false;
+    }
+  };
+
   const checkAuth = async () => {
+    let token = localStorage.getItem('accessToken');
+    const isTokenExpired = checkIfTokenExpired(token); // You'll need a function to check expiry
+
+    if (isTokenExpired) {
+      const refreshed = await refreshAccessToken();
+      if (!refreshed) {
+        setIsLoggedIn(false);
+        return;
+      }
+      token = localStorage.getItem('accessToken'); // Get new token
+    }
+
     try {
       const res = await fetch('https://ai-application-post-create.onrender.com/api/auth/me', {
         method: 'GET',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+        },
         credentials: 'include',
       });
 
@@ -35,8 +72,6 @@ useEffect(() => {
           const gravatarUrl = await getGravatar(data.email);
           setProfileImage(gravatarUrl);
         }
-
-        // localStorage.setItem('email', data.email);
       } else {
         setIsLoggedIn(false);
         localStorage.removeItem('email');
@@ -49,6 +84,7 @@ useEffect(() => {
 
   checkAuth();
 }, []);
+
 const handleLoginSuccess = (userData) => {
   setIsLoggedIn(true);
   setUserEmail(userData.email);
@@ -169,3 +205,4 @@ const handleLoginSuccess = (userData) => {
 };
 
 export default Header;
+
