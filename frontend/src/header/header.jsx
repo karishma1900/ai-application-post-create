@@ -9,7 +9,7 @@ const Header = ({ isLoggedIn, setIsLoggedIn }) => {
   // const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [userEmail, setUserEmail] = useState('');
   const [profileImage, setProfileImage] = useState('');
-const [accessToken, setAccessToken] = useState(null);
+const [accessToken, setAccessToken] = useState(() => localStorage.getItem('accessToken') || null);
 
 useEffect(() => {
   const getGravatar = async (email) => {
@@ -18,39 +18,43 @@ useEffect(() => {
   };
 
   const checkAuth = async () => {
-  try {
-    const res = await fetch('https://ai-application-post-create.onrender.com/api/auth/me', {
-      method: 'GET',
-      credentials: 'include',
-      headers: {
-        Authorization: `Bearer ${accessToken}`, // ✅ Use state token
-      },
-    });
+    if (!accessToken) return; // Don't call /me if there's no token
 
-    const data = await res.json();
+    try {
+      const res = await fetch('https://ai-application-post-create.onrender.com/api/auth/me', {
+        method: 'GET',
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+        },
+      });
 
-    if (res.ok) {
-      setIsLoggedIn(true);
-      setUserEmail(data.email);
-      setProfileImage(data.profileImage);
-    } else {
+      const data = await res.json();
+
+      if (res.ok) {
+        setIsLoggedIn(true);
+        setUserEmail(data.email);
+        setProfileImage(data.profileImage || (await getGravatar(data.email)));
+      } else {
+        setIsLoggedIn(false);
+      }
+    } catch (err) {
+      console.error('Not logged in', err);
       setIsLoggedIn(false);
     }
-  } catch (err) {
-    console.error('Not logged in', err);
-    setIsLoggedIn(false);
-  }
-};
-
+  };
 
   checkAuth();
-}, []);
-const handleLoginSuccess = (userData) => {
+}, [accessToken]); // ✅ watch accessToken here!
+
+const onLoginSuccess={(token, userData) => {
+  localStorage.setItem('accessToken', token); // ✅ persist token
+  setAccessToken(token);
   setIsLoggedIn(true);
   setUserEmail(userData.email);
-  setProfileImage(userData.profileImage || getGravatar(userData.email));
-  setIsModalOpen(false);
-};
+  setProfileImage(userData.profileImage);
+}}
+
+
 
   const getGravatar = (email) => {
     const hash = md5(email.trim().toLowerCase());
@@ -90,7 +94,9 @@ const handleLoginSuccess = (userData) => {
         setIsLoggedIn(false); // <== Update shared state
         setUserEmail('');
         setProfileImage('');
-        localStorage.removeItem('email');
+localStorage.removeItem('accessToken');
+setAccessToken(null);
+
       } else {
         console.error('Logout failed');
       }
@@ -168,4 +174,5 @@ const handleLoginSuccess = (userData) => {
 };
 
 export default Header;
+
 
