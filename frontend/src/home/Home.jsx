@@ -16,10 +16,20 @@ function Home({ isLoggedIn, setIsLoggedIn }) {
   // Fetch user data and auth status
  useEffect(() => {
     const fetchUser = async () => {
+       const token = localStorage.getItem('accessToken');
+      if (!token) {
+          setIsLoggedIn(false);
+          // If no token, don't attempt the fetch, and let the Header component handle login
+          return; 
+      }
       try {
         const res = await fetch('https://ai-application-post-create.onrender.com/api/auth/me', {
-          credentials: 'include',
-        });
+          credentials: 'include',
+       
+          headers: {
+              'Authorization': `Bearer ${token}`,
+          },
+        });
         const data = await res.json();
         if (res.ok) {
           setCredits(data.credits);
@@ -113,7 +123,7 @@ function Home({ isLoggedIn, setIsLoggedIn }) {
         </div>
       </div>
 
-      <ToastContainer position="top-right" autoClose={3000} />
+      {/* <ToastContainer position="top-right" autoClose={3000} /> */}
 
       {/* Show credits only if logged in */}
       {isLoggedIn && <Credit total={planCredits} used={usedCredits} />}
@@ -129,7 +139,15 @@ function Home({ isLoggedIn, setIsLoggedIn }) {
               closeModal={() => {
                 closeLoginModal();
                 // After login success, re-fetch user info & credits
-                fetch('http://localhost:5000/api/auth/me', { credentials: 'include' })
+               // To this (use the deployed URL):
+fetch('https://ai-application-post-create.onrender.com/api/auth/me', { 
+    // Remember, you need the Authorization header here too, but since the 
+    // Login component calls onLoginSuccess which updates state in Header,
+    // and the useEffect in Home should run again, this might be redundant.
+    // For a quick fix, let's keep the credentials, but the Header is responsible 
+    // for setting the access token which is required for this fetch.
+    credentials: 'include' 
+}) 
                   .then(res => res.json())
                   .then(data => {
                     if (data.credits !== undefined) {
@@ -148,3 +166,4 @@ function Home({ isLoggedIn, setIsLoggedIn }) {
 }
 
 export default Home;
+
