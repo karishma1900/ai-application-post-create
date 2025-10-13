@@ -43,10 +43,12 @@ app.use('/api/request', requestRoutes);
 app.use(express.static(path.join(__dirname, 'client/build')));
 
 // Change here: use '/*' instead of '*'
-app.get('/*', (req, res) => {
+app.use((req, res, next) => {
   res.sendFile(path.join(__dirname, 'client/build/index.html'));
 });
+
 
 // ✅ Start Server
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => console.log('Server started on', PORT));
+
