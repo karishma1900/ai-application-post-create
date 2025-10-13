@@ -12,7 +12,6 @@ const authRoutes = require('./routes/authRoutes');
 
 const app = express();
 
-
 // ✅ CORS Setup
 const corsOptions = {
   origin: process.env.CLIENT_ORIGIN || 'http://localhost:3000',
@@ -42,12 +41,12 @@ app.use('/api/request', requestRoutes);
 
 // ✅ Serve React build (AFTER API routes)
 app.use(express.static(path.join(__dirname, 'client/build')));
-app.get('*', (req, res) => {
+
+// Change here: use '/*' instead of '*'
+app.get('/*', (req, res) => {
   res.sendFile(path.join(__dirname, 'client/build/index.html'));
 });
 
 // ✅ Start Server
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => console.log('Server started on', PORT));
-
-
