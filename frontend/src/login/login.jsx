@@ -2,46 +2,40 @@ import React, { useState } from 'react';
 import './login.css';
 import { toast } from 'react-toastify';
 
-const Login = ({ closeModal, openRegisterModal,onLoginSuccess }) => {
+const Login = ({ closeModal, openRegisterModal }) => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
 
-
-
   const handleSubmit = async (e) => {
     e.preventDefault();
+
     try {
       const res = await fetch('https://ai-application-post-create.onrender.com/api/auth/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        credentials: 'include',
+        credentials: 'include', // ✅ Required for HTTP-only cookies
         body: JSON.stringify({ email, password }),
       });
 
-      const data = await res.json();
-      console.log('Status:', res.status, 'Body:', data);
 
+      const data = await res.json();
+console.log('Status:', res.status, 'Body:', data);
       if (!res.ok) {
         toast.error(data.error || 'Login failed');
         return;
       }
 
-      // ✅ Pass token and user info to parent
-      onLoginSuccess(data.accessToken, {
-        email: data.email,
-        profileImage: data.profileImage,
-      });
+      // Save email just for UI use (e.g., avatar)
+      localStorage.setItem('email', email);
 
       toast.success('Login successful!');
-      localStorage.setItem('accessToken', data.accessToken);
+      closeModal(); // Will trigger parent to refresh UI
 
-      closeModal();
     } catch (err) {
       toast.error('Something went wrong!');
       console.error(err);
     }
   };
-
 
   return (
     <div>
@@ -81,6 +75,3 @@ const Login = ({ closeModal, openRegisterModal,onLoginSuccess }) => {
 };
 
 export default Login;
-
-
-
