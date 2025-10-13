@@ -46,13 +46,14 @@ useEffect(() => {
   checkAuth();
 }, [accessToken]); // ✅ watch accessToken here!
 
-const onLoginSuccess={(token, userData) => {
+const onLoginSuccess = (token, userData) => {
   localStorage.setItem('accessToken', token); // ✅ persist token
   setAccessToken(token);
   setIsLoggedIn(true);
   setUserEmail(userData.email);
   setProfileImage(userData.profileImage);
-}}
+};
+
 
 
 
@@ -146,16 +147,12 @@ setAccessToken(null);
           <div className="modal-content">
             <button className="close-btn" onClick={closeModal}>&times;</button>
             {modalType === 'login' && (
-             <Login
+          <Login
   openRegisterModal={openRegisterModal}
   closeModal={closeModal}
-  onLoginSuccess={(token, userData) => {
-    setAccessToken(token);
-    setIsLoggedIn(true);
-    setUserEmail(userData.email);
-    setProfileImage(userData.profileImage);
-  }}
+  onLoginSuccess={onLoginSuccess}
 />
+
 
             )}
             {modalType === 'register' && (
@@ -174,5 +171,6 @@ setAccessToken(null);
 };
 
 export default Header;
+
 
 
