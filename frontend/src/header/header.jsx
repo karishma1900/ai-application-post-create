@@ -183,12 +183,16 @@ const Header = ({ isLoggedIn, setIsLoggedIn }) => {
             <button className="close-btn" onClick={closeModal}>&times;</button>
             {modalType === 'login' && (
               <Login
-                openRegisterModal={openRegisterModal}
-                closeModal={() => {
-                  setIsModalOpen(false);
-                  setTimeout(() => window.location.reload(), 500); // Force reload to update UI
-                }}
-              />
+    openRegisterModal={openRegisterModal}
+    closeModal={() => {
+      setIsModalOpen(false);
+      // NOTE: Remove the forced reload if you use handleLoginSuccess properly
+      // setTimeout(() => window.location.reload(), 500); 
+    }}
+    // --- CRUCIAL CHANGE: Pass the success handler ---
+    onLoginSuccess={handleLoginSuccess} 
+    // --- END CRUCIAL CHANGE ---
+  />
             )}
             {modalType === 'register' && (
               <Register
@@ -205,4 +209,5 @@ const Header = ({ isLoggedIn, setIsLoggedIn }) => {
 };
 
 export default Header;
+
 
