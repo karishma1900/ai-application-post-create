@@ -35,12 +35,16 @@ const Register = ({ closeModal, openLoginModal, onLoginSuccess }) => {
 
       toast.success('Registered and logged in successfully!');
 
-      // IMPORTANT: call onLoginSuccess to update Header state immediately
+      // IMPORTANT: call onLoginSuccess with token and userData
       if (onLoginSuccess) {
-        onLoginSuccess(data);
-      } else {
-        closeModal();
+        onLoginSuccess(data.accessToken, {
+          email: data.email,
+          profileImage: data.profileImage,
+        });
       }
+
+      // Optionally close the modal if login is successful
+      closeModal();
     } catch (err) {
       toast.error('Something went wrong!');
       console.error(err);
@@ -90,9 +94,11 @@ const Register = ({ closeModal, openLoginModal, onLoginSuccess }) => {
           Register
         </button>
 
-        <p className='register-login2'>
+        <p className="register-login2">
           Already have an account?{' '}
-          <button type="button" className='register-login' onClick={openLoginModal}>Login</button>
+          <button type="button" className="register-login" onClick={openLoginModal}>
+            Login
+          </button>
         </p>
       </form>
 
