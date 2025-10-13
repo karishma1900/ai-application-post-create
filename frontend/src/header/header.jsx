@@ -29,19 +29,22 @@ useEffect(() => {
       },
     });
 
-    const data = await res.json();
-    if (res.ok) {
-      setIsLoggedIn(true);
-      setUserEmail(data.email);
-      setProfileImage(data.profileImage || (await getGravatar(data.email)));
-    } else {
-      setIsLoggedIn(false);
+    if (!res.ok) {
+      console.error("Failed to authenticate with status:", res.status);
+      setIsLoggedIn(false); // Logout if the token is invalid
+      return;
     }
+
+    const data = await res.json();
+    setIsLoggedIn(true);
+    setUserEmail(data.email);
+    setProfileImage(data.profileImage || await getGravatar(data.email));
   } catch (err) {
-    console.error('Not logged in', err);
+    console.error("Error fetching user data:", err);
     setIsLoggedIn(false);
   }
 };
+
 
 
   checkAuth();
@@ -173,6 +176,7 @@ setAccessToken(null);
 };
 
 export default Header;
+
 
 
 
