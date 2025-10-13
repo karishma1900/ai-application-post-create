@@ -6,69 +6,62 @@ import Register from '../register/register';
 const Header = ({ isLoggedIn, setIsLoggedIn }) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [modalType, setModalType] = useState('login');
+  // const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [userEmail, setUserEmail] = useState('');
   const [profileImage, setProfileImage] = useState('');
-  const [accessToken, setAccessToken] = useState(() => localStorage.getItem('accessToken') || null);
 
-  // Decode token function to check if it's expired
-  const decodeToken = (token) => {
-    const payload = JSON.parse(atob(token.split('.')[1]));
-    return payload.exp * 1000 > Date.now(); // true if token is still valid
+useEffect(() => {
+  const getGravatar = async (email) => {
+    const hash = await md5(email.trim().toLowerCase());
+    return `https://www.gravatar.com/avatar/${hash}?d=identicon`;
   };
 
-  useEffect(() => {
-    const getGravatar = async (email) => {
-      const hash = await md5(email.trim().toLowerCase());
-      return `https://www.gravatar.com/avatar/${hash}?d=identicon`;
-    };
+  const checkAuth = async () => {
+    try {
+      const res = await fetch('https://ai-application-post-create.onrender.com/api/auth/me', {
+        method: 'GET',
+        credentials: 'include',
+      });
 
-   const checkAuth = async () => {
-  const token = localStorage.getItem('accessToken'); // Get token from localStorage
-  console.log('Token in LocalStorage:', token);  // Log the token to check
-  
-  if (!token || !decodeToken(token)) {
-    console.error('Token expired or invalid');
-    setIsLoggedIn(false);
-    return; // Don't continue if the token is invalid or expired
-  }
+      const data = await res.json();
 
-  try {
-    const res = await fetch('https://ai-application-post-create.onrender.com/api/auth/me', {
-      method: 'GET',
-      headers: {
-        Authorization: `Bearer ${token}`, // Make sure it's in the correct format
-      },
-    });
+      if (res.ok) {
+        setIsLoggedIn(true);
+        setUserEmail(data.email);
 
-    if (!res.ok) {
-      console.error('Failed to authenticate with status:', res.status);
+        if (data.profileImage) {
+          setProfileImage(data.profileImage);
+        } else {
+          const gravatarUrl = await getGravatar(data.email);
+          setProfileImage(gravatarUrl);
+        }
+
+        // localStorage.setItem('email', data.email);
+      } else {
+        setIsLoggedIn(false);
+        localStorage.removeItem('email');
+      }
+    } catch (err) {
+      console.error('Not logged in', err);
       setIsLoggedIn(false);
-      return;
     }
+  };
 
-    const data = await res.json();
-    console.log('User Data:', data);  // Log the data to check what is being returned
-    setIsLoggedIn(true);
-    setUserEmail(data.email);
-    setProfileImage(data.profileImage || await getGravatar(data.email));
-  } catch (err) {
-    console.error('Error fetching user data:', err);
-    setIsLoggedIn(false);
-  }
+  checkAuth();
+}, []);
+const handleLoginSuccess = (userData) => {
+  setIsLoggedIn(true);
+  setUserEmail(userData.email);
+  setProfileImage(userData.profileImage || getGravatar(userData.email));
+  setIsModalOpen(false);
 };
 
-
-    checkAuth();
-  }, [accessToken]); // Watch accessToken for changes
-
-  const onLoginSuccess = (token, userData) => {
-    localStorage.setItem('accessToken', token); // Persist token
-    setAccessToken(token);
-    setIsLoggedIn(true);
-    setUserEmail(userData.email);
-    setProfileImage(userData.profileImage);
+  const getGravatar = (email) => {
+    const hash = md5(email.trim().toLowerCase());
+    return `https://www.gravatar.com/avatar/${hash}?d=identicon`;
   };
 
+  // Function to open modals
   const openLoginModal = () => {
     setModalType('login');
     setIsModalOpen(true);
@@ -98,11 +91,10 @@ const Header = ({ isLoggedIn, setIsLoggedIn }) => {
       });
 
       if (res.ok) {
-        setIsLoggedIn(false); // Update shared state
+        setIsLoggedIn(false); // <== Update shared state
         setUserEmail('');
         setProfileImage('');
-        localStorage.removeItem('accessToken');
-        setAccessToken(null);
+        localStorage.removeItem('email');
       } else {
         console.error('Logout failed');
       }
@@ -111,6 +103,7 @@ const Header = ({ isLoggedIn, setIsLoggedIn }) => {
     }
   };
 
+  // For Gravatar hashing
   const md5 = (string) => {
     return crypto.subtle.digest("MD5", new TextEncoder().encode(string))
       .then(buffer => [...new Uint8Array(buffer)]
@@ -129,18 +122,19 @@ const Header = ({ isLoggedIn, setIsLoggedIn }) => {
           </>
         ) : (
           <>
-            {profileImage && (
-              <div className="profile-dropdown">
-                <img
-                  src={profileImage}
-                  alt="Profile"
-                  className="profile-image"
-                />
-                <div className="dropdown-menu">
-                  <button onClick={handleLogout} className='logout-button'>Logout</button>
-                </div>
-              </div>
-            )}
+           {profileImage && (
+  <div className="profile-dropdown">
+    <img
+      src={profileImage}
+      alt="Profile"
+      className="profile-image"
+    />
+    <div className="dropdown-menu">
+      <button onClick={handleLogout} className='logout-button'>Logout</button>
+    </div>
+  </div>
+)}
+
           </>
         )}
       </div>
@@ -152,16 +146,20 @@ const Header = ({ isLoggedIn, setIsLoggedIn }) => {
             {modalType === 'login' && (
               <Login
                 openRegisterModal={openRegisterModal}
-                closeModal={closeModal}
-                onLoginSuccess={onLoginSuccess}
+                closeModal={() => {
+                  // Re-check login state after login
+                  setIsModalOpen(false);
+                  setTimeout(() => window.location.reload(), 500); // force reload to update UI
+                }}
               />
             )}
             {modalType === 'register' && (
               <Register
-                openLoginModal={openLoginModal}
-                closeModal={() => setIsModalOpen(false)}
-                onLoginSuccess={onLoginSuccess}
-              />
+  openLoginModal={openLoginModal}
+  closeModal={() => setIsModalOpen(false)}
+  onLoginSuccess={handleLoginSuccess}
+/>
+
             )}
           </div>
         </div>
@@ -171,4 +169,3 @@ const Header = ({ isLoggedIn, setIsLoggedIn }) => {
 };
 
 export default Header;
-
