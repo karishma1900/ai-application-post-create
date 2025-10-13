@@ -1,0 +1,118 @@
+/* Header.css */
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1rem 2rem;
+ 
+  color: white;
+  font-family: 'Poppins', sans-serif;
+}
+
+.logo img {
+  height: 40px;
+}
+
+.nav-links a {
+  margin: 0 1rem;
+  color: white;
+  text-decoration: none;
+  font-weight: 500;
+  transition: color 0.3s;
+}
+
+.nav-links a:hover {
+  color: #7f5af0; /* neon-ish hover */
+}
+
+.auth-buttons button {
+  margin-left: 1rem;
+  padding: 0.5rem 1rem;
+  border-radius: 25px;
+  border: 1px solid white;
+  background: transparent;
+  color: white;
+  cursor: pointer;
+  transition: all 0.3s;
+  font-weight: 500;
+}
+.logout-button{
+  margin-left: 0px !important;;
+  padding: 0rem 2rem !important;
+}
+.auth-buttons .login-btn:hover {
+  background: white;
+  color: #1a0b3b;
+}
+
+.auth-buttons .register-btn {
+  background: #a855f7;
+  border: none;
+}
+
+.auth-buttons .register-btn:hover {
+  opacity: 0.8;
+}
+.profile-dropdown {
+  position: relative;
+  display: inline-block;
+}
+
+.profile-image {
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
+  cursor: pointer;
+}
+
+.dropdown-menu {
+  position: absolute;
+  top: 45px; /* below the profile image */
+  right: 0;
+  background-color: white;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+  padding: 10px;
+  display: none;
+  flex-direction: column;
+  border-radius: 4px;
+  z-index: 100;
+}
+
+.profile-dropdown:hover .dropdown-menu {
+  display: flex;
+}
+
+.dropdown-menu button {
+  background: none;
+  border: none;
+  cursor: pointer;
+  /* padding: 8px 12px; */
+  text-align: left;
+  width: 100%;
+  font-size: 14px;
+  color: #333;
+}
+
+/* .dropdown-menu button:hover {
+  background-color: transparent;
+} */
+.logout-button:hover{
+background-color: transparent;
+
+}
+/* Responsive */
+@media (max-width: 768px) {
+  .nav-links {
+    display: none;
+  }
+
+  .header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .auth-buttons {
+    margin-top: 1rem;
+  }
+}
