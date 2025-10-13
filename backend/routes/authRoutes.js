@@ -1,13 +1,13 @@
 const express = require('express');
 const router = express.Router();
 const authMiddleware = require('../middlewares/authMiddleware'); // adjust path
-const { register, login, logout } = require('../controllers/authController');
+const { register, login, logout, refreshToken } = require('../controllers/authController');
 
 
 router.post('/register', register);
 router.post('/login', login);
 router.post('/logout', logout);
-
+router.post('/refresh',refreshToken)
 // Add this /me route here:
 // in authRoutes.js
 router.get('/me', authMiddleware, async (req, res) => {
