@@ -6,7 +6,7 @@ const cookieParser = require('cookie-parser');
 const path = require('path');
 require('dotenv').config();
 
-const creditRoutes = require('./routes/CreditRoutes');
+const creditRoutes = require('./routes/creditRoutes');
 const requestRoutes = require('./routes/requestRoutes');
 const authRoutes = require('./routes/authRoutes');
 
@@ -49,3 +49,4 @@ app.get('*', (req, res) => {
 // ✅ Start Server
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => console.log('Server started on', PORT));
+
