@@ -27,7 +27,7 @@ const Login = ({  closeModal, openRegisterModal, onLoginSuccess  }) => {
       }
 
       // --- CRUCIAL CHANGE START ---
-      const { accessToken, email, credits, profileImage } = data;
+      const { accessToken, credits, profileImage } = data;
       
       // 1. Save the Access Token to Local Storage
       localStorage.setItem('accessToken', accessToken); 
@@ -92,6 +92,7 @@ const Login = ({  closeModal, openRegisterModal, onLoginSuccess  }) => {
 };
 
 export default Login;
+
 
 
 
