@@ -101,7 +101,7 @@ const creditRes = await fetch('https://ai-application-post-create.onrender.com/a
 if (creditRes.ok) {
     setCredits(prev => prev - 3);
 } 
-      } else {
+       else {
         toast.warning('Request submitted, but failed to update credits.');
       }
     } catch (err) {
@@ -173,5 +173,6 @@ fetch('https://ai-application-post-create.onrender.com/api/auth/me', {
 }
 
 export default Home;
+
 
 
