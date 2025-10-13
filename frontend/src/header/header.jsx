@@ -17,31 +17,32 @@ useEffect(() => {
     return `https://www.gravatar.com/avatar/${hash}?d=identicon`;
   };
 
-  const checkAuth = async () => {
-    if (!accessToken) return; // Don't call /me if there's no token
+ const checkAuth = async () => {
+  const token = localStorage.getItem('accessToken'); // Get token from localStorage
+  if (!token) return; // Don't call /me if there's no token
 
-    try {
-      const res = await fetch('https://ai-application-post-create.onrender.com/api/auth/me', {
-        method: 'GET',
-        headers: {
-          Authorization: `Bearer ${accessToken}`,
-        },
-      });
+  try {
+    const res = await fetch('https://ai-application-post-create.onrender.com/api/auth/me', {
+      method: 'GET',
+      headers: {
+        Authorization: `Bearer ${token}`, // Pass token correctly
+      },
+    });
 
-      const data = await res.json();
-
-      if (res.ok) {
-        setIsLoggedIn(true);
-        setUserEmail(data.email);
-        setProfileImage(data.profileImage || (await getGravatar(data.email)));
-      } else {
-        setIsLoggedIn(false);
-      }
-    } catch (err) {
-      console.error('Not logged in', err);
+    const data = await res.json();
+    if (res.ok) {
+      setIsLoggedIn(true);
+      setUserEmail(data.email);
+      setProfileImage(data.profileImage || (await getGravatar(data.email)));
+    } else {
       setIsLoggedIn(false);
     }
-  };
+  } catch (err) {
+    console.error('Not logged in', err);
+    setIsLoggedIn(false);
+  }
+};
+
 
   checkAuth();
 }, [accessToken]); // ✅ watch accessToken here!
@@ -172,6 +173,7 @@ setAccessToken(null);
 };
 
 export default Header;
+
 
 
 
