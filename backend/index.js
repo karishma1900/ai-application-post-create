@@ -32,7 +32,7 @@ app.use(cors({
    credentials: true ,
 
   origin:
-   'http://localhost:3000', // 👈 Your frontend origin
+   ['http://localhost:3000','https://ai-application-post-create-1.onrender.com'], // 👈 Your frontend origin
                // 👈 Allow cookies (needed for login session)
 }));
 
@@ -61,3 +61,4 @@ const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => console.log('Server started on', PORT));
 
 module.exports = router;
+
