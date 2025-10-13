@@ -11,7 +11,7 @@ const requestRoutes = require('./routes/requestRoutes');
 const authRoutes = require('./routes/authRoutes');
 
 const app = express();
-CLIENT_ORIGIN='https://ai-application-post-create-1.onrender.com'
+
 
 // ✅ CORS Setup
 const corsOptions = {
@@ -49,4 +49,5 @@ app.get('*', (req, res) => {
 // ✅ Start Server
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => console.log('Server started on', PORT));
+
 
