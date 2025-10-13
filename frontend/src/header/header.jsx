@@ -6,67 +6,65 @@ import Register from '../register/register';
 const Header = ({ isLoggedIn, setIsLoggedIn }) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [modalType, setModalType] = useState('login');
-  // const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [userEmail, setUserEmail] = useState('');
   const [profileImage, setProfileImage] = useState('');
-const [accessToken, setAccessToken] = useState(() => localStorage.getItem('accessToken') || null);
+  const [accessToken, setAccessToken] = useState(() => localStorage.getItem('accessToken') || null);
 
-useEffect(() => {
-  const getGravatar = async (email) => {
-    const hash = await md5(email.trim().toLowerCase());
-    return `https://www.gravatar.com/avatar/${hash}?d=identicon`;
+  // Decode token function to check if it's expired
+  const decodeToken = (token) => {
+    const payload = JSON.parse(atob(token.split('.')[1]));
+    return payload.exp * 1000 > Date.now(); // true if token is still valid
   };
 
- const checkAuth = async () => {
-  const token = localStorage.getItem('accessToken'); // Get token from localStorage
-  if (!token) return; // Don't call /me if there's no token
+  useEffect(() => {
+    const getGravatar = async (email) => {
+      const hash = await md5(email.trim().toLowerCase());
+      return `https://www.gravatar.com/avatar/${hash}?d=identicon`;
+    };
 
-  try {
-    const res = await fetch('https://ai-application-post-create.onrender.com/api/auth/me', {
-      method: 'GET',
-      headers: {
-        Authorization: `Bearer ${token}`, // Pass token correctly
-      },
-    });
+    const checkAuth = async () => {
+      const token = localStorage.getItem('accessToken'); // Get token from localStorage
+      if (!token || !decodeToken(token)) {
+        console.error('Token expired or invalid');
+        setIsLoggedIn(false);
+        return; // Don't continue if the token is invalid or expired
+      }
 
-    if (!res.ok) {
-      console.error("Failed to authenticate with status:", res.status);
-      setIsLoggedIn(false); // Logout if the token is invalid
-      return;
-    }
+      try {
+        const res = await fetch('https://ai-application-post-create.onrender.com/api/auth/me', {
+          method: 'GET',
+          headers: {
+            Authorization: `Bearer ${token}`, // Pass token correctly
+          },
+        });
 
-    const data = await res.json();
+        if (!res.ok) {
+          console.error("Failed to authenticate with status:", res.status);
+          setIsLoggedIn(false); // Logout if the token is invalid
+          return;
+        }
+
+        const data = await res.json();
+        setIsLoggedIn(true);
+        setUserEmail(data.email);
+        setProfileImage(data.profileImage || await getGravatar(data.email));
+      } catch (err) {
+        console.error("Error fetching user data:", err);
+        setIsLoggedIn(false);
+      }
+    };
+
+    checkAuth();
+  }, [accessToken]); // Watch accessToken for changes
+
+  const onLoginSuccess = (token, userData) => {
+    localStorage.setItem('accessToken', token); // Persist token
+    setAccessToken(token);
     setIsLoggedIn(true);
-    setUserEmail(data.email);
-    setProfileImage(data.profileImage || await getGravatar(data.email));
-  } catch (err) {
-    console.error("Error fetching user data:", err);
-    setIsLoggedIn(false);
-  }
-};
-
-
-
-  checkAuth();
-}, [accessToken]); // ✅ watch accessToken here!
-
-const onLoginSuccess = (token, userData) => {
-  localStorage.setItem('accessToken', token); // ✅ persist token
-  setAccessToken(token);
-  setIsLoggedIn(true);
-  setUserEmail(userData.email);
-  setProfileImage(userData.profileImage);
-};
-
-
-
-
-  const getGravatar = (email) => {
-    const hash = md5(email.trim().toLowerCase());
-    return `https://www.gravatar.com/avatar/${hash}?d=identicon`;
+    setUserEmail(userData.email);
+    setProfileImage(userData.profileImage);
   };
 
-  // Function to open modals
   const openLoginModal = () => {
     setModalType('login');
     setIsModalOpen(true);
@@ -96,12 +94,11 @@ const onLoginSuccess = (token, userData) => {
       });
 
       if (res.ok) {
-        setIsLoggedIn(false); // <== Update shared state
+        setIsLoggedIn(false); // Update shared state
         setUserEmail('');
         setProfileImage('');
-localStorage.removeItem('accessToken');
-setAccessToken(null);
-
+        localStorage.removeItem('accessToken');
+        setAccessToken(null);
       } else {
         console.error('Logout failed');
       }
@@ -110,7 +107,6 @@ setAccessToken(null);
     }
   };
 
-  // For Gravatar hashing
   const md5 = (string) => {
     return crypto.subtle.digest("MD5", new TextEncoder().encode(string))
       .then(buffer => [...new Uint8Array(buffer)]
@@ -129,19 +125,18 @@ setAccessToken(null);
           </>
         ) : (
           <>
-           {profileImage && (
-  <div className="profile-dropdown">
-    <img
-      src={profileImage}
-      alt="Profile"
-      className="profile-image"
-    />
-    <div className="dropdown-menu">
-      <button onClick={handleLogout} className='logout-button'>Logout</button>
-    </div>
-  </div>
-)}
-
+            {profileImage && (
+              <div className="profile-dropdown">
+                <img
+                  src={profileImage}
+                  alt="Profile"
+                  className="profile-image"
+                />
+                <div className="dropdown-menu">
+                  <button onClick={handleLogout} className='logout-button'>Logout</button>
+                </div>
+              </div>
+            )}
           </>
         )}
       </div>
@@ -151,22 +146,18 @@ setAccessToken(null);
           <div className="modal-content">
             <button className="close-btn" onClick={closeModal}>&times;</button>
             {modalType === 'login' && (
-          <Login
-  openRegisterModal={openRegisterModal}
-  closeModal={closeModal}
-  onLoginSuccess={onLoginSuccess}
-/>
-
-
+              <Login
+                openRegisterModal={openRegisterModal}
+                closeModal={closeModal}
+                onLoginSuccess={onLoginSuccess}
+              />
             )}
             {modalType === 'register' && (
-             <Register
-  openLoginModal={openLoginModal}
-  closeModal={() => setIsModalOpen(false)}
-  onLoginSuccess={onLoginSuccess}
-/>
-
-
+              <Register
+                openLoginModal={openLoginModal}
+                closeModal={() => setIsModalOpen(false)}
+                onLoginSuccess={onLoginSuccess}
+              />
             )}
           </div>
         </div>
@@ -176,9 +167,3 @@ setAccessToken(null);
 };
 
 export default Header;
-
-
-
-
-
-
