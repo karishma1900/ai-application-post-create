@@ -9,6 +9,7 @@ const Header = ({ isLoggedIn, setIsLoggedIn }) => {
   // const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [userEmail, setUserEmail] = useState('');
   const [profileImage, setProfileImage] = useState('');
+const [accessToken, setAccessToken] = useState(null);
 
 useEffect(() => {
   const getGravatar = async (email) => {
@@ -17,35 +18,30 @@ useEffect(() => {
   };
 
   const checkAuth = async () => {
-    try {
-      const res = await fetch('https://ai-application-post-create.onrender.com/api/auth/me', {
-        method: 'GET',
-        credentials: 'include',
-      });
+  try {
+    const res = await fetch('https://ai-application-post-create.onrender.com/api/auth/me', {
+      method: 'GET',
+      credentials: 'include',
+      headers: {
+        Authorization: `Bearer ${accessToken}`, // ✅ Use state token
+      },
+    });
 
-      const data = await res.json();
+    const data = await res.json();
 
-      if (res.ok) {
-        setIsLoggedIn(true);
-        setUserEmail(data.email);
-
-        if (data.profileImage) {
-          setProfileImage(data.profileImage);
-        } else {
-          const gravatarUrl = await getGravatar(data.email);
-          setProfileImage(gravatarUrl);
-        }
-
-        localStorage.setItem('email', data.email);
-      } else {
-        setIsLoggedIn(false);
-        localStorage.removeItem('email');
-      }
-    } catch (err) {
-      console.error('Not logged in', err);
+    if (res.ok) {
+      setIsLoggedIn(true);
+      setUserEmail(data.email);
+      setProfileImage(data.profileImage);
+    } else {
       setIsLoggedIn(false);
     }
-  };
+  } catch (err) {
+    console.error('Not logged in', err);
+    setIsLoggedIn(false);
+  }
+};
+
 
   checkAuth();
 }, []);
@@ -144,14 +140,17 @@ const handleLoginSuccess = (userData) => {
           <div className="modal-content">
             <button className="close-btn" onClick={closeModal}>&times;</button>
             {modalType === 'login' && (
-              <Login
-                openRegisterModal={openRegisterModal}
-                closeModal={() => {
-                  // Re-check login state after login
-                  setIsModalOpen(false);
-                  setTimeout(() => window.location.reload(), 500); // force reload to update UI
-                }}
-              />
+             <Login
+  openRegisterModal={openRegisterModal}
+  closeModal={closeModal}
+  onLoginSuccess={(token, userData) => {
+    setAccessToken(token);
+    setIsLoggedIn(true);
+    setUserEmail(userData.email);
+    setProfileImage(userData.profileImage);
+  }}
+/>
+
             )}
             {modalType === 'register' && (
               <Register
@@ -169,3 +168,4 @@ const handleLoginSuccess = (userData) => {
 };
 
 export default Header;
+
