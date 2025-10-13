@@ -3,7 +3,7 @@ const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
 const cors = require('cors');  // <-- import cors here
 
-const creditRoutes = require('./routes/CreditRoutes');
+const creditRoutes = require('./routes/creditRoutes');
 const requestRoutes = require('./routes/requestRoutes');
 const authRoutes = require('./routes/authRoutes');
 // In authRoutes.js
@@ -59,4 +59,5 @@ app.use('/api/request', requestRoutes);
 
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => console.log('Server started on', PORT));
+
 module.exports = router;
