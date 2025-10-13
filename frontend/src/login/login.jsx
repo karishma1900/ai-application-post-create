@@ -33,6 +33,8 @@ const Login = ({ closeModal, openRegisterModal,onLoginSuccess }) => {
       });
 
       toast.success('Login successful!');
+      localStorage.setItem('accessToken', data.accessToken);
+
       closeModal();
     } catch (err) {
       toast.error('Something went wrong!');
@@ -79,5 +81,6 @@ const Login = ({ closeModal, openRegisterModal,onLoginSuccess }) => {
 };
 
 export default Login;
+
 
 
