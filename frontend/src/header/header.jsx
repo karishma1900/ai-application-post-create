@@ -22,37 +22,41 @@ const Header = ({ isLoggedIn, setIsLoggedIn }) => {
       return `https://www.gravatar.com/avatar/${hash}?d=identicon`;
     };
 
-    const checkAuth = async () => {
-      const token = localStorage.getItem('accessToken'); // Get token from localStorage
-      if (!token || !decodeToken(token)) {
-        console.error('Token expired or invalid');
-        setIsLoggedIn(false);
-        return; // Don't continue if the token is invalid or expired
-      }
+   const checkAuth = async () => {
+  const token = localStorage.getItem('accessToken'); // Get token from localStorage
+  console.log('Token in LocalStorage:', token);  // Log the token to check
+  
+  if (!token || !decodeToken(token)) {
+    console.error('Token expired or invalid');
+    setIsLoggedIn(false);
+    return; // Don't continue if the token is invalid or expired
+  }
 
-      try {
-        const res = await fetch('https://ai-application-post-create.onrender.com/api/auth/me', {
-          method: 'GET',
-          headers: {
-            Authorization: `Bearer ${token}`, // Pass token correctly
-          },
-        });
+  try {
+    const res = await fetch('https://ai-application-post-create.onrender.com/api/auth/me', {
+      method: 'GET',
+      headers: {
+        Authorization: `Bearer ${token}`, // Make sure it's in the correct format
+      },
+    });
 
-        if (!res.ok) {
-          console.error("Failed to authenticate with status:", res.status);
-          setIsLoggedIn(false); // Logout if the token is invalid
-          return;
-        }
+    if (!res.ok) {
+      console.error('Failed to authenticate with status:', res.status);
+      setIsLoggedIn(false);
+      return;
+    }
 
-        const data = await res.json();
-        setIsLoggedIn(true);
-        setUserEmail(data.email);
-        setProfileImage(data.profileImage || await getGravatar(data.email));
-      } catch (err) {
-        console.error("Error fetching user data:", err);
-        setIsLoggedIn(false);
-      }
-    };
+    const data = await res.json();
+    console.log('User Data:', data);  // Log the data to check what is being returned
+    setIsLoggedIn(true);
+    setUserEmail(data.email);
+    setProfileImage(data.profileImage || await getGravatar(data.email));
+  } catch (err) {
+    console.error('Error fetching user data:', err);
+    setIsLoggedIn(false);
+  }
+};
+
 
     checkAuth();
   }, [accessToken]); // Watch accessToken for changes
@@ -167,3 +171,4 @@ const Header = ({ isLoggedIn, setIsLoggedIn }) => {
 };
 
 export default Header;
+
