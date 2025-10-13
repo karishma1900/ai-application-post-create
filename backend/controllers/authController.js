@@ -16,7 +16,7 @@ const getGravatar = (email) => {
   const hash = md5(email.trim().toLowerCase());
   return `https://www.gravatar.com/avatar/${hash}?d=identicon`;
 };
-
+const isProduction = process.env.NODE_ENV === 'production'; 
 function generateAccessToken(user) {
   return jwt.sign({ userId: user._id }, ACCESS_TOKEN_SECRET, { expiresIn: ACCESS_TOKEN_EXPIRES_IN });
 }
@@ -145,5 +145,6 @@ function logout(req, res) {
 }
 
 export { register, login, logout, refreshToken };
+
 
 
