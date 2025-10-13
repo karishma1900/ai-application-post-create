@@ -85,15 +85,22 @@ function Home({ isLoggedIn, setIsLoggedIn }) {
       setTopic('');
 
       // Deduct credits
-      const creditRes = await fetch('https://ai-application-post-create.onrender.com/api/credit/deduct', {
-        method: 'POST',
-        credentials: 'include',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ amount: 3 }),
-      });
+      const token = localStorage.getItem('accessToken'); 
 
-      if (creditRes.ok) {
-        setCredits(prev => prev - 3);
+const creditRes = await fetch('https://ai-application-post-create.onrender.com/api/credit/deduct', {
+    method: 'POST',
+    credentials: 'include',
+    headers: { 
+        'Content-Type': 'application/json',
+        // >>> CRITICAL FIX: Add Authorization Header <<<
+        'Authorization': `Bearer ${token}` 
+    },
+    body: JSON.stringify({ amount: 3 }),
+});
+
+if (creditRes.ok) {
+    setCredits(prev => prev - 3);
+} 
       } else {
         toast.warning('Request submitted, but failed to update credits.');
       }
@@ -166,4 +173,5 @@ fetch('https://ai-application-post-create.onrender.com/api/auth/me', {
 }
 
 export default Home;
+
 
