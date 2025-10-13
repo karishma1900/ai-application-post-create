@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import './login.css';
 import { toast } from 'react-toastify';
 
-const Login = ({ closeModal, openRegisterModal }) => {
+const Login = ({ closeModal, openRegisterModal,onLoginSuccess }) => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
 
@@ -79,4 +79,5 @@ const Login = ({ closeModal, openRegisterModal }) => {
 };
 
 export default Login;
+
 
