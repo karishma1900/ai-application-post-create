@@ -6,95 +6,106 @@ import Register from '../register/register';
 const Header = ({ isLoggedIn, setIsLoggedIn }) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [modalType, setModalType] = useState('login');
-  // const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [userEmail, setUserEmail] = useState('');
   const [profileImage, setProfileImage] = useState('');
 
-useEffect(() => {
+  const checkIfTokenExpired = (token) => {
+    if (!token) return true; // If no token exists, consider it expired
+    try {
+      const payload = JSON.parse(atob(token.split('.')[1])); // Decode the base64 payload
+      const expirationTime = payload.exp * 1000; // Convert from seconds to milliseconds
+      return Date.now() > expirationTime; // Check if the current time is greater than the expiration time
+    } catch (error) {
+      console.error('Failed to decode token:', error);
+      return true; // If there's an error decoding the token, consider it expired
+    }
+  };
+
   const getGravatar = async (email) => {
-    const hash = md5(email.trim().toLowerCase());
+    const hash = await md5(email.trim().toLowerCase()); // Wait for md5 to resolve
     return `https://www.gravatar.com/avatar/${hash}?d=identicon`;
   };
 
-  const refreshAccessToken = async () => {
-    try {
-      const res = await fetch('https://ai-application-post-create.onrender.com/api/auth/refresh', {
-        method: 'POST',
-        credentials: 'include', // For cookies
-      });
+  const md5 = (string) => {
+    return crypto.subtle.digest("MD5", new TextEncoder().encode(string))
+      .then(buffer => [...new Uint8Array(buffer)]
+      .map(b => b.toString(16).padStart(2, '0')).join(''));
+  };
 
-      const data = await res.json();
+  useEffect(() => {
+    const refreshAccessToken = async () => {
+      try {
+        const res = await fetch('https://ai-application-post-create.onrender.com/api/auth/refresh', {
+          method: 'POST',
+          credentials: 'include', // For cookies
+        });
 
-      if (res.ok) {
-        // Store new access token
-        localStorage.setItem('accessToken', data.accessToken);
-        return true;
-      } else {
+        const data = await res.json();
+
+        if (res.ok) {
+          localStorage.setItem('accessToken', data.accessToken);
+          return true;
+        } else {
+          return false;
+        }
+      } catch (err) {
+        console.error('Token refresh failed', err);
         return false;
       }
-    } catch (err) {
-      console.error('Token refresh failed', err);
-      return false;
-    }
-  };
+    };
 
-  const checkAuth = async () => {
-    let token = localStorage.getItem('accessToken');
-    const isTokenExpired = checkIfTokenExpired(token); // You'll need a function to check expiry
+    const checkAuth = async () => {
+      let token = localStorage.getItem('accessToken');
+      const isTokenExpired = checkIfTokenExpired(token);
 
-    if (isTokenExpired) {
-      const refreshed = await refreshAccessToken();
-      if (!refreshed) {
-        setIsLoggedIn(false);
-        return;
-      }
-      token = localStorage.getItem('accessToken'); // Get new token
-    }
-
-    try {
-      const res = await fetch('https://ai-application-post-create.onrender.com/api/auth/me', {
-        method: 'GET',
-        headers: {
-          'Authorization': `Bearer ${token}`,
-        },
-        credentials: 'include',
-      });
-
-      const data = await res.json();
-
-      if (res.ok) {
-        setIsLoggedIn(true);
-        setUserEmail(data.email);
-
-        if (data.profileImage) {
-          setProfileImage(data.profileImage);
-        } else {
-          const gravatarUrl = await getGravatar(data.email);
-          setProfileImage(gravatarUrl);
+      if (isTokenExpired) {
+        const refreshed = await refreshAccessToken();
+        if (!refreshed) {
+          setIsLoggedIn(false);
+          return;
         }
-      } else {
-        setIsLoggedIn(false);
-        localStorage.removeItem('email');
+        token = localStorage.getItem('accessToken'); // Get new token
       }
-    } catch (err) {
-      console.error('Not logged in', err);
-      setIsLoggedIn(false);
-    }
-  };
 
-  checkAuth();
-}, []);
+      try {
+        const res = await fetch('https://ai-application-post-create.onrender.com/api/auth/me', {
+          method: 'GET',
+          headers: {
+            'Authorization': `Bearer ${token}`,
+          },
+          credentials: 'include',
+        });
 
-const handleLoginSuccess = (userData) => {
-  setIsLoggedIn(true);
-  setUserEmail(userData.email);
-  setProfileImage(userData.profileImage || getGravatar(userData.email));
-  setIsModalOpen(false);
-};
+        const data = await res.json();
 
-  const getGravatar = (email) => {
-    const hash = md5(email.trim().toLowerCase());
-    return `https://www.gravatar.com/avatar/${hash}?d=identicon`;
+        if (res.ok) {
+          setIsLoggedIn(true);
+          setUserEmail(data.email);
+
+          if (data.profileImage) {
+            setProfileImage(data.profileImage);
+          } else {
+            const gravatarUrl = await getGravatar(data.email);
+            setProfileImage(gravatarUrl);
+          }
+        } else {
+          setIsLoggedIn(false);
+          localStorage.removeItem('email');
+        }
+      } catch (err) {
+        console.error('Not logged in', err);
+        setIsLoggedIn(false);
+      }
+    };
+
+    checkAuth();
+  }, []);
+
+  const handleLoginSuccess = (userData) => {
+    setIsLoggedIn(true);
+    setUserEmail(userData.email);
+    setProfileImage(userData.profileImage || getGravatar(userData.email));
+    setIsModalOpen(false);
   };
 
   // Function to open modals
@@ -127,7 +138,7 @@ const handleLoginSuccess = (userData) => {
       });
 
       if (res.ok) {
-        setIsLoggedIn(false); // <== Update shared state
+        setIsLoggedIn(false); // Update shared state
         setUserEmail('');
         setProfileImage('');
         localStorage.removeItem('email');
@@ -137,13 +148,6 @@ const handleLoginSuccess = (userData) => {
     } catch (err) {
       console.error('Logout error', err);
     }
-  };
-
-  // For Gravatar hashing
-  const md5 = (string) => {
-    return crypto.subtle.digest("MD5", new TextEncoder().encode(string))
-      .then(buffer => [...new Uint8Array(buffer)]
-      .map(b => b.toString(16).padStart(2, '0')).join(''));
   };
 
   return (
@@ -158,19 +162,18 @@ const handleLoginSuccess = (userData) => {
           </>
         ) : (
           <>
-           {profileImage && (
-  <div className="profile-dropdown">
-    <img
-      src={profileImage}
-      alt="Profile"
-      className="profile-image"
-    />
-    <div className="dropdown-menu">
-      <button onClick={handleLogout} className='logout-button'>Logout</button>
-    </div>
-  </div>
-)}
-
+            {profileImage && (
+              <div className="profile-dropdown">
+                <img
+                  src={profileImage}
+                  alt="Profile"
+                  className="profile-image"
+                />
+                <div className="dropdown-menu">
+                  <button onClick={handleLogout} className='logout-button'>Logout</button>
+                </div>
+              </div>
+            )}
           </>
         )}
       </div>
@@ -183,19 +186,17 @@ const handleLoginSuccess = (userData) => {
               <Login
                 openRegisterModal={openRegisterModal}
                 closeModal={() => {
-                  // Re-check login state after login
                   setIsModalOpen(false);
-                  setTimeout(() => window.location.reload(), 500); // force reload to update UI
+                  setTimeout(() => window.location.reload(), 500); // Force reload to update UI
                 }}
               />
             )}
             {modalType === 'register' && (
               <Register
-  openLoginModal={openLoginModal}
-  closeModal={() => setIsModalOpen(false)}
-  onLoginSuccess={handleLoginSuccess}
-/>
-
+                openLoginModal={openLoginModal}
+                closeModal={() => setIsModalOpen(false)}
+                onLoginSuccess={handleLoginSuccess}
+              />
             )}
           </div>
         </div>
@@ -205,4 +206,3 @@ const handleLoginSuccess = (userData) => {
 };
 
 export default Header;
-
