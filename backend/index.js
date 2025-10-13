@@ -1,64 +1,51 @@
 const express = require('express');
 const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
-const cors = require('cors');  // <-- import cors here
+const cors = require('cors');
+const cookieParser = require('cookie-parser');
+const path = require('path');
+require('dotenv').config();
 
-const creditRoutes = require('./routes/creditRoutes');
+const creditRoutes = require('./routes/CreditRoutes');
 const requestRoutes = require('./routes/requestRoutes');
 const authRoutes = require('./routes/authRoutes');
-// In authRoutes.js
-
-const router = express.Router();
-const authMiddleware = require('./middlewares/authMiddleware');
-const User = require('./models/User');
-
-
-
-
-// router.get('/me', authMiddleware, async (req, res) => {
-//   const user = req.user;
-//   res.json({ email: user.email });
-// });
-
-
-
-
 
 const app = express();
+CLIENT_ORIGIN='https://ai-application-post-create-1.onrender.com'
 
-// Use CORS middleware globally
+// ✅ CORS Setup
+const corsOptions = {
+  origin: process.env.CLIENT_ORIGIN || 'http://localhost:3000',
+  credentials: true,
+};
+app.use(cors(corsOptions));
 
-app.use(cors({
-   credentials: true ,
+// ✅ Cookie Parser
+app.use(cookieParser());
 
-  origin:
-   ['http://localhost:3000','https://ai-application-post-create-1.onrender.com'], // 👈 Your frontend origin
-               // 👈 Allow cookies (needed for login session)
-}));
-
-// For Stripe webhook you need raw body, so you may do conditional
+// ✅ Webhook route (Stripe)
 app.use(
   '/api/credit/webhook',
   express.raw({ type: 'application/json' })
 );
-// index.js or app.js
-const cookieParser = require('cookie-parser');
-app.use(cookieParser());
 
-
-// For other routes use JSON parser
+// ✅ JSON Parser for other routes
 app.use(bodyParser.json());
 
-// Connect to DB
+// ✅ MongoDB connection
 mongoose.connect(process.env.MONGO_URI);
 
-// Mount routes
+// ✅ API Routes
 app.use('/api/auth', authRoutes);
 app.use('/api/credit', creditRoutes);
 app.use('/api/request', requestRoutes);
 
+// ✅ Serve React build (AFTER API routes)
+app.use(express.static(path.join(__dirname, 'client/build')));
+app.get('*', (req, res) => {
+  res.sendFile(path.join(__dirname, 'client/build/index.html'));
+});
+
+// ✅ Start Server
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => console.log('Server started on', PORT));
-
-module.exports = router;
-

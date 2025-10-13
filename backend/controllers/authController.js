@@ -37,13 +37,12 @@ async function register(req, res) {
   const token = jwt.sign({ userId: newUser._id }, process.env.JWT_SECRET);
 
   // Set cookie (just like login)
- res.cookie('token', token, {
-  httpOnly: true,
-  secure: process.env.NODE_ENV === 'production', // ✅ Secure in production
-  sameSite: process.env.NODE_ENV === 'production' ? 'None' : 'Lax', // ✅ None for cross-site
-  maxAge: 7 * 24 * 60 * 60 * 1000, // 1 week
-});
-
+  res.cookie('token', token, {
+    httpOnly: true,
+    secure: false, // change to true in production with HTTPS
+    sameSite: 'Lax',
+    maxAge: 7 * 24 * 60 * 60 * 1000, // 1 week
+  });
 
   // Send response with user info
   res.json({
@@ -75,13 +74,12 @@ async function login(req, res) {
   const token = jwt.sign({ userId: user._id }, process.env.JWT_SECRET);
 
   // ✅ SET the cookie HERE
- res.cookie('token', token, {
-  httpOnly: true,
-  secure: process.env.NODE_ENV === 'production', // ✅ Secure in production
-  sameSite: process.env.NODE_ENV === 'production' ? 'None' : 'Lax', // ✅ None for cross-site
-  maxAge: 7 * 24 * 60 * 60 * 1000, // 1 week
-});
-
+  res.cookie('token', token, {
+    httpOnly: true,
+    secure: false, // ❗ Set to true in production (with HTTPS)
+    sameSite: 'Lax', // Or 'Strict'
+    maxAge: 7 * 24 * 60 * 60 * 1000, // 1 week
+  });
 
   res.json({
     message: 'Logged in',
@@ -93,5 +91,4 @@ async function login(req, res) {
 
 
 export { register, login,logout };
-
 
