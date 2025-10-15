@@ -6,48 +6,33 @@ const Login = ({  closeModal, openRegisterModal, onLoginSuccess  }) => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
 
- const handleSubmit = async (e) => {
-   e.preventDefault();
-    console.log("Sending login request", { email, password });
+const handleSubmit = async (e) => {
+    e.preventDefault();
 
-    try {
-      const res = await fetch('https://ai-application-post-create.onrender.com/api/auth/login', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        credentials: 'include',
-        body: JSON.stringify({ email, password }),
-      });
+    try {
+      const res = await fetch('https://ai-application-post-create.onrender.com/api/auth/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify({ email, password }),
+      });
 
-      const data = await res.json();
-      console.log('Status:', res.status, 'Body:', data);
+      const data = await res.json();
 
-      if (!res.ok) {
-        toast.error(data.error || 'Login failed');
-        return;
-      }
+      if (!res.ok) {
+        toast.error(data.error || 'Login failed');
+        return;
+      }
 
-      // --- CRUCIAL CHANGE START ---
-      const { accessToken, credits, profileImage } = data;
-      
-      // 1. Save the Access Token to Local Storage
-      localStorage.setItem('accessToken', accessToken); 
-      
-      // 2. Call the success handler function passed from the parent Header
-      if (onLoginSuccess) {
-          onLoginSuccess({ email, credits, profileImage });
-      }
+      const { accessToken } = data;
+      localStorage.setItem('accessToken', accessToken);
 
-      // 3. Optional: Only storing email is okay, but we have the data now.
-      // localStorage.setItem('email', email); 
-      
-      // --- CRUCIAL CHANGE END ---
+      // Notify parent component of login success; Home will fetch fresh user data
+      if (onLoginSuccess) onLoginSuccess();
 
       toast.success('Login successful!');
       closeModal();
-      
-      // The Header component will take care of the UI update now
-      // setTimeout(() => window.location.reload(), 500); // You can remove this forced reload later
-      
+
     } catch (err) {
       toast.error('Something went wrong!');
       console.error(err);
@@ -92,6 +77,7 @@ const Login = ({  closeModal, openRegisterModal, onLoginSuccess  }) => {
 };
 
 export default Login;
+
 
 
 
