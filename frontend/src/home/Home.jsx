@@ -8,7 +8,7 @@ import Login from '../login/login';  // Import your Login component
 
 function Home({ isLoggedIn, setIsLoggedIn }) {
   const [topic, setTopic] = useState('');
-  const [credits, setCredits] = useState(0);
+  const [credits, setCredits] = useState(null);
   const [planCredits] = useState(100);
   // const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -110,7 +110,8 @@ if (creditRes.ok) {
     }
   };
 
-  const usedCredits = planCredits - credits;
+const usedCredits = credits !== null ? planCredits - credits : 0;
+
 
   return (
     <div className='homepage'>
@@ -173,6 +174,7 @@ fetch('https://ai-application-post-create.onrender.com/api/auth/me', {
 }
 
 export default Home;
+
 
 
 
