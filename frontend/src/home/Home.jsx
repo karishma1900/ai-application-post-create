@@ -4,7 +4,7 @@ import 'react-toastify/dist/ReactToastify.css';
 import { FiSend } from "react-icons/fi";
 import './home.css';
 import Credit from '../credit/Credit';
-import Login from '../login/login';  // Import your Login component
+import Login from '../login/login';
 
 function Home({ isLoggedIn, setIsLoggedIn }) {
   const [topic, setTopic] = useState('');
@@ -12,38 +12,48 @@ function Home({ isLoggedIn, setIsLoggedIn }) {
   const [planCredits] = useState(100);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
-  useEffect(() => {
-    const fetchUser = async () => {
-      const token = localStorage.getItem('accessToken');
-      if (!token) {
+  // Fetch user data from backend
+  const fetchUser = async () => {
+    const token = localStorage.getItem('accessToken');
+    if (!token) {
+      setIsLoggedIn(false);
+      setCredits(null);
+      return;
+    }
+    try {
+      const res = await fetch('https://ai-application-post-create.onrender.com/api/auth/me', {
+        credentials: 'include',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+        },
+      });
+      const data = await res.json();
+      if (res.ok) {
+        setCredits(data.credits);
+        setIsLoggedIn(true);
+      } else {
         setIsLoggedIn(false);
-        return;
+        setCredits(null);
       }
-      try {
-        const res = await fetch('https://ai-application-post-create.onrender.com/api/auth/me', {
-          credentials: 'include',
-          headers: {
-            'Authorization': `Bearer ${token}`,
-          },
-        });
-        const data = await res.json();
-        if (res.ok) {
-          setCredits(data.credits);
-          setIsLoggedIn(true);
-        } else {
-          setIsLoggedIn(false);
-        }
-      } catch (err) {
-        console.error('Failed to fetch user data:', err);
-        setIsLoggedIn(false);
-      }
-    };
+    } catch (err) {
+      console.error('Failed to fetch user data:', err);
+      setIsLoggedIn(false);
+      setCredits(null);
+    }
+  };
 
+  useEffect(() => {
     fetchUser();
-  }, [setIsLoggedIn]);
+  }, []);
 
   const openLoginModal = () => setIsModalOpen(true);
   const closeLoginModal = () => setIsModalOpen(false);
+
+  // Called immediately after successful login inside Login component
+  const handleLoginSuccess = async () => {
+    await fetchUser();    // fetch fresh user credits after login
+    closeLoginModal();
+  };
 
   const handleRequest = async () => {
     if (!isLoggedIn) {
@@ -120,12 +130,11 @@ function Home({ isLoggedIn, setIsLoggedIn }) {
         </div>
       </div>
 
+      {/* Uncomment if you want toast notifications to show */}
       {/* <ToastContainer position="top-right" autoClose={3000} /> */}
 
-      {/* Show credits only if logged in */}
       {isLoggedIn && <Credit total={planCredits} used={usedCredits} />}
 
-      {/* Login modal */}
       {isModalOpen && (
         <div
           className="modal-overlay"
@@ -137,15 +146,7 @@ function Home({ isLoggedIn, setIsLoggedIn }) {
             <button className="close-btn" onClick={closeLoginModal}>&times;</button>
             <Login
               closeModal={closeLoginModal}
-              // >>> CRUCIAL FIX: Pass a function to handle successful credit data <<<
-              onLoginSuccess={(userData) => {
-                // userData should contain { credits }
-                if (userData.credits !== undefined) {
-                  setCredits(userData.credits);
-                  setIsLoggedIn(true);
-                  closeLoginModal(); // Close modal immediately after updating state
-                }
-              }}
+              onLoginSuccess={handleLoginSuccess}  // Pass updated login success handler here
             />
           </div>
         </div>
