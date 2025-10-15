@@ -2,36 +2,34 @@ import React, { useState } from 'react';
 import './login.css';
 import { toast } from 'react-toastify';
 
-const Login = ({  closeModal, openRegisterModal, onLoginSuccess  }) => {
+const Login = ({ closeModal, openRegisterModal }) => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
 
-const handleSubmit = async (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
 
     try {
-      const res = await fetch('https://ai-application-post-create.onrender.com/api/auth/login', {
+      const res = await fetch('http://localhost:5000/api/auth/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        credentials: 'include',
+        credentials: 'include', // ✅ Required for HTTP-only cookies
         body: JSON.stringify({ email, password }),
       });
 
-      const data = await res.json();
 
+      const data = await res.json();
+console.log('Status:', res.status, 'Body:', data);
       if (!res.ok) {
         toast.error(data.error || 'Login failed');
         return;
       }
 
-      const { accessToken } = data;
-      localStorage.setItem('accessToken', accessToken);
-
-      // Notify parent component of login success; Home will fetch fresh user data
-      if (onLoginSuccess) onLoginSuccess();
+      // Save email just for UI use (e.g., avatar)
+      localStorage.setItem('email', email);
 
       toast.success('Login successful!');
-      closeModal();
+      closeModal(); // Will trigger parent to refresh UI
 
     } catch (err) {
       toast.error('Something went wrong!');
@@ -77,8 +75,3 @@ const handleSubmit = async (e) => {
 };
 
 export default Login;
-
-
-
-
-
