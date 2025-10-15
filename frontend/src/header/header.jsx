@@ -157,7 +157,7 @@ const Header = ({ isLoggedIn, setIsLoggedIn }) => {
         {!isLoggedIn ? (
           <>
             <button className="login-btn" onClick={openLoginModal}>Login</button>
-            <button className="register-btn" onClick={openRegisterModal}>Register</button>
+            {/* <button className="register-btn" onClick={openRegisterModal}>Register</button> */}
           </>
         ) : (
           <>
@@ -209,5 +209,6 @@ const Header = ({ isLoggedIn, setIsLoggedIn }) => {
 };
 
 export default Header;
+
 
 
