@@ -10,6 +10,7 @@ function Home() {
   const [topic, setTopic] = useState('');
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [planCredits] = useState(100);
+  const [isSubmitting, setIsSubmitting] = useState(false); // 🔹 NEW STATE
 
   const {
     isLoggedIn,
@@ -25,7 +26,7 @@ function Home() {
   const closeLoginModal = () => setIsModalOpen(false);
 
   const handleLoginSuccessLocal = () => {
-    handleLoginSuccess(); // context function
+    handleLoginSuccess();
     closeLoginModal();
   };
 
@@ -44,6 +45,8 @@ function Home() {
       toast.error('Insufficient credits! ❌');
       return;
     }
+
+    setIsSubmitting(true); // 🔹 DISABLE BUTTON
 
     const url = 'https://aiautomation15.app.n8n.cloud/webhook/e142e4a5-187e-4cd9-9957-37e979d2e639';
     const payload = { topic, category: 'blogs' };
@@ -72,15 +75,18 @@ function Home() {
       });
 
       if (creditRes.ok) {
-        await fetchUserData(); // Refresh from context
+        await fetchUserData();
       } else {
         toast.warning('Request submitted, but failed to update credits.');
       }
     } catch (err) {
       console.error('Error:', err);
       toast.error('Submission failed! ❌');
+    } finally {
+      setIsSubmitting(false); // 🔹 RE-ENABLE BUTTON
     }
   };
+
 
   return (
     <div className='homepage'>
@@ -94,9 +100,15 @@ function Home() {
             onChange={(e) => setTopic(e.target.value)}
             placeholder="Enter topic name"
           />
-          <button onClick={handleRequest}>
-            <FiSend style={{ fontSize: '24px', color: '#fff' }} />
-          </button>
+          <button
+  onClick={handleRequest}
+  disabled={isSubmitting}
+  className={`send-btn ${isSubmitting ? 'disabled' : ''}`}
+>
+  <FiSend style={{ fontSize: '24px', color: '#fff' }} />
+</button>
+
+
         </div>
       </div>
 
