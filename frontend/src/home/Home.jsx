@@ -138,42 +138,30 @@ const usedCredits = credits !== null ? planCredits - credits : 0;
 
       {/* Login modal */}
       {isModalOpen && (
-        <div className="modal-overlay" onClick={(e) => {
-          if (e.target.classList.contains('modal-overlay')) closeLoginModal();
-        }}>
-          <div className="modal-content">
-            <button className="close-btn" onClick={closeLoginModal}>&times;</button>
-            <Login
-              closeModal={() => {
-                closeLoginModal();
-                // After login success, re-fetch user info & credits
-               // To this (use the deployed URL):
-fetch('https://ai-application-post-create.onrender.com/api/auth/me', { 
-    // Remember, you need the Authorization header here too, but since the 
-    // Login component calls onLoginSuccess which updates state in Header,
-    // and the useEffect in Home should run again, this might be redundant.
-    // For a quick fix, let's keep the credentials, but the Header is responsible 
-    // for setting the access token which is required for this fetch.
-    credentials: 'include' 
-}) 
-                  .then(res => res.json())
-                  .then(data => {
-                    if (data.credits !== undefined) {
-                      setCredits(data.credits);
+        <div className="modal-overlay" onClick={(e) => {
+          if (e.target.classList.contains('modal-overlay')) closeLoginModal();
+        }}>
+          <div className="modal-content">
+            <button className="close-btn" onClick={closeLoginModal}>&times;</button>
+            <Login
+              closeModal={closeLoginModal}
+              // >>> CRUCIAL FIX: Pass a function to handle successful credit data <<<
+              onLoginSuccess={(userData) => { // userData should contain { credits }
+                  if (userData.credits !== undefined) {
+                      setCredits(userData.credits);
                       setIsLoggedIn(true);
-                    }
-                  })
-                  .catch(console.error);
+                      closeLoginModal(); // Close the modal immediately after updating state
+                  }
               }}
-            />
-          </div>
-        </div>
-      )}
+            />
+          </div>
+        </div>
     </div>
   );
 }
 
 export default Home;
+
 
 
 
