@@ -1,57 +1,31 @@
-import React, { useState, useEffect } from 'react';
-import { toast, ToastContainer } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css';
+import React, { useState, useContext } from 'react';
+import { toast } from 'react-toastify';
 import { FiSend } from "react-icons/fi";
 import './home.css';
 import Credit from '../credit/Credit';
 import Login from '../login/login';
+import { AuthContext } from '../AuthContext';
 
-function Home({ isLoggedIn, setIsLoggedIn }) {
+function Home() {
   const [topic, setTopic] = useState('');
-  const [credits, setCredits] = useState(null);
-  const [planCredits] = useState(100);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [planCredits] = useState(100);
 
-  // Fetch user data from backend
-  const fetchUser = async () => {
-    const token = localStorage.getItem('accessToken');
-    if (!token) {
-      setIsLoggedIn(false);
-      setCredits(null);
-      return;
-    }
-    try {
-      const res = await fetch('https://ai-application-post-create.onrender.com/api/auth/me', {
-        credentials: 'include',
-        headers: {
-          'Authorization': `Bearer ${token}`,
-        },
-      });
-      const data = await res.json();
-      if (res.ok) {
-        setCredits(data.credits);
-        setIsLoggedIn(true);
-      } else {
-        setIsLoggedIn(false);
-        setCredits(null);
-      }
-    } catch (err) {
-      console.error('Failed to fetch user data:', err);
-      setIsLoggedIn(false);
-      setCredits(null);
-    }
-  };
+  const {
+    isLoggedIn,
+    credits,
+    handleLoginSuccess,
+    fetchUserData,
+  } = useContext(AuthContext);
 
-  useEffect(() => {
-    fetchUser();
-  }, []);
+  const currentCredits = credits !== null ? credits : 100;
+  const usedCredits = planCredits - currentCredits;
 
   const openLoginModal = () => setIsModalOpen(true);
   const closeLoginModal = () => setIsModalOpen(false);
 
-  // Called immediately after successful login inside Login component
-  const handleLoginSuccess = async () => {
-    await fetchUser();    // fetch fresh user credits after login
+  const handleLoginSuccessLocal = () => {
+    handleLoginSuccess(); // context function
     closeLoginModal();
   };
 
@@ -66,7 +40,7 @@ function Home({ isLoggedIn, setIsLoggedIn }) {
       return;
     }
 
-    if (credits < 3) {
+    if (currentCredits < 3) {
       toast.error('Insufficient credits! ❌');
       return;
     }
@@ -83,24 +57,22 @@ function Home({ isLoggedIn, setIsLoggedIn }) {
 
       if (!res.ok) throw new Error('Request failed.');
 
-      const result = await res.json();
       toast.success('Topic submitted successfully! ✅');
       setTopic('');
 
       const token = localStorage.getItem('accessToken');
-
       const creditRes = await fetch('https://ai-application-post-create.onrender.com/api/credit/deduct', {
         method: 'POST',
         credentials: 'include',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
+          'Authorization': `Bearer ${token}`,
         },
         body: JSON.stringify({ amount: 3 }),
       });
 
       if (creditRes.ok) {
-        setCredits(prev => prev - 3);
+        await fetchUserData(); // Refresh from context
       } else {
         toast.warning('Request submitted, but failed to update credits.');
       }
@@ -109,8 +81,6 @@ function Home({ isLoggedIn, setIsLoggedIn }) {
       toast.error('Submission failed! ❌');
     }
   };
-
-  const usedCredits = credits !== null ? planCredits - credits : 0;
 
   return (
     <div className='homepage'>
@@ -130,23 +100,17 @@ function Home({ isLoggedIn, setIsLoggedIn }) {
         </div>
       </div>
 
-      {/* Uncomment if you want toast notifications to show */}
-      {/* <ToastContainer position="top-right" autoClose={3000} /> */}
-
       {isLoggedIn && <Credit total={planCredits} used={usedCredits} />}
 
       {isModalOpen && (
-        <div
-          className="modal-overlay"
-          onClick={(e) => {
-            if (e.target.classList.contains('modal-overlay')) closeLoginModal();
-          }}
-        >
+        <div className="modal-overlay" onClick={(e) => {
+          if (e.target.classList.contains('modal-overlay')) closeLoginModal();
+        }}>
           <div className="modal-content">
             <button className="close-btn" onClick={closeLoginModal}>&times;</button>
             <Login
               closeModal={closeLoginModal}
-              onLoginSuccess={handleLoginSuccess}  // Pass updated login success handler here
+              onLoginSuccess={handleLoginSuccessLocal}
             />
           </div>
         </div>

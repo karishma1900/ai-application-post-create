@@ -8,10 +8,12 @@ import Pricing from './pricing/pricing'; // Make sure to create a Pricing.js com
 import { ToastContainer, toast } from 'react-toastify';
 import Home from './home/Home';
 import Credit from './credit/Credit';
+import { AuthProvider } from './AuthContext';
 function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   return (
     <Router>
+      <AuthProvider >
        <Header isLoggedIn={isLoggedIn} setIsLoggedIn={setIsLoggedIn} />
       <div className="App">
         <div className="grid-overlay"></div>
@@ -24,6 +26,7 @@ function App() {
           <Route path="/pricing" element={<Pricing />} />
           <Route path="/" element={<Home isLoggedIn={isLoggedIn} setIsLoggedIn={setIsLoggedIn} />} />
           <Route path="/credit"  element={<Credit />} />
+          
         </Routes>
    
       </div>
@@ -34,6 +37,7 @@ function App() {
   closeButton={true}  // Ensures the 'x' icon is available
   pauseOnHover={true}
 />
+</AuthProvider>
     </Router>
     
   );

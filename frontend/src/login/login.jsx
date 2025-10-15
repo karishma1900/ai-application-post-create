@@ -1,51 +1,22 @@
-import React, { useState } from 'react';
+import React, { useState, useContext } from 'react';
 import './login.css';
 import { toast } from 'react-toastify';
+import { AuthContext } from '../AuthContext'; // Adjust the path as needed
 
 const Login = ({ closeModal, openRegisterModal }) => {
+  const { login } = useContext(AuthContext); // get login function from context
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
 
-const handleSubmit = async (e) => {
-   e.preventDefault();
-    console.log("Sending login request", { email, password });
+  const handleSubmit = async (e) => {
+    e.preventDefault();
 
-    try {
-      const res = await fetch('https://ai-application-post-create.onrender.com/api/auth/login', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        credentials: 'include',
-        body: JSON.stringify({ email, password }),
-      });
+    const success = await login({ email, password });
 
-      const data = await res.json();
-      console.log('Status:', res.status, 'Body:', data);
-
-      if (!res.ok) {
-        toast.error(data.error || 'Login failed');
-        return;
-      }
-
-      // --- CRUCIAL CHANGE START ---
-      const { accessToken, credits, profileImage } = data;
-      
-      // 1. Save the Access Token to Local Storage
-      localStorage.setItem('accessToken', accessToken); 
-      
-      // 2. Call the success handler function passed from the parent Header
-      if (onLoginSuccess) {
-          onLoginSuccess({ email, credits, profileImage });
-      }
-
-      // Save email just for UI use (e.g., avatar)
-      localStorage.setItem('email', email);
-
-      toast.success('Login successful!');
-      closeModal(); // Will trigger parent to refresh UI
-
-    } catch (err) {
-      toast.error('Something went wrong!');
-      console.error(err);
+    if (success) {
+      closeModal();  // close modal if login was successful
+    } else {
+      // Optional: additional error handling here if needed
     }
   };
 
@@ -87,5 +58,3 @@ const handleSubmit = async (e) => {
 };
 
 export default Login;
-
-
