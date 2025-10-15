@@ -162,15 +162,15 @@ const Header = ({ isLoggedIn, setIsLoggedIn }) => {
         ) : (
           <>
             {profileImage && (
-              <div className="profile-dropdown">
+              <div className="profile">
                 <img
                   src={profileImage}
                   alt="Profile"
                   className="profile-image"
                 />
-                <div className="dropdown-menu">
-                  <button onClick={handleLogout} className='logout-button'>Logout</button>
-                </div>
+               
+                  <button onClick={handleLogout} className='login-btn'>Logout</button>
+                
               </div>
             )}
           </>
@@ -209,6 +209,7 @@ const Header = ({ isLoggedIn, setIsLoggedIn }) => {
 };
 
 export default Header;
+
 
 
 
