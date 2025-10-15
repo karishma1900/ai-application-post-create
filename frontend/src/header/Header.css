@@ -9,6 +9,11 @@
   color: white;
   font-family: 'Poppins', sans-serif;
 }
+.profile{
+  display:flex;
+  align-items:center;
+  justify-content:flex-start;
+  gap:10px}
 
 .logo img {
   height: 40px;
@@ -116,3 +121,4 @@ background-color: transparent;
     margin-top: 1rem;
   }
 }
+
