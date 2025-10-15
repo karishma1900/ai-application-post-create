@@ -1,41 +1,11 @@
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import './Credit.css';
 
-const Credit = () => {
-  const [total, setTotal] = useState(null);
-  const [used, setUsed] = useState(null);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    // Replace with your actual API call
-    const fetchCredits = async () => {
-      try {
-        const response = await fetch('/api/credits'); // 👈 Your real endpoint here
-        const data = await response.json();
-
-        setTotal(data.total);
-        setUsed(data.used);
-      } catch (error) {
-        console.error('Failed to fetch credits:', error);
-        // Optionally set fallback values or error state
-        setTotal(100);
-        setUsed(0);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchCredits();
-  }, []);
-
+const Credit = ({ total, used }) => {
   const radius = 50;
   const circumference = 2 * Math.PI * radius;
   const strokeDashoffset = used && total ? circumference * (1 - used / total) : 0;
   const remaining = total && used ? total - used : 0;
-
-  if (loading) {
-    return <div className="credit-card"><p>Loading credits...</p></div>;
-  }
 
   return (
     <div className="credit-card">
