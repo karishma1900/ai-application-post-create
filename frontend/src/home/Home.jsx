@@ -10,26 +10,22 @@ function Home({ isLoggedIn, setIsLoggedIn }) {
   const [topic, setTopic] = useState('');
   const [credits, setCredits] = useState(null);
   const [planCredits] = useState(100);
-  // const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
-  // Fetch user data and auth status
- useEffect(() => {
+  useEffect(() => {
     const fetchUser = async () => {
-       const token = localStorage.getItem('accessToken');
+      const token = localStorage.getItem('accessToken');
       if (!token) {
-          setIsLoggedIn(false);
-          // If no token, don't attempt the fetch, and let the Header component handle login
-          return; 
+        setIsLoggedIn(false);
+        return;
       }
       try {
         const res = await fetch('https://ai-application-post-create.onrender.com/api/auth/me', {
-          credentials: 'include',
-       
+          credentials: 'include',
           headers: {
-              'Authorization': `Bearer ${token}`,
+            'Authorization': `Bearer ${token}`,
           },
-        });
+        });
         const data = await res.json();
         if (res.ok) {
           setCredits(data.credits);
@@ -46,14 +42,11 @@ function Home({ isLoggedIn, setIsLoggedIn }) {
     fetchUser();
   }, [setIsLoggedIn]);
 
-  // Open login modal
   const openLoginModal = () => setIsModalOpen(true);
   const closeLoginModal = () => setIsModalOpen(false);
 
-  // Handle topic submission
   const handleRequest = async () => {
     if (!isLoggedIn) {
-      // User not logged in, open login modal
       openLoginModal();
       return;
     }
@@ -84,24 +77,21 @@ function Home({ isLoggedIn, setIsLoggedIn }) {
       toast.success('Topic submitted successfully! ✅');
       setTopic('');
 
-      // Deduct credits
-      const token = localStorage.getItem('accessToken'); 
+      const token = localStorage.getItem('accessToken');
 
-const creditRes = await fetch('https://ai-application-post-create.onrender.com/api/credit/deduct', {
-    method: 'POST',
-    credentials: 'include',
-    headers: { 
-        'Content-Type': 'application/json',
-        // >>> CRITICAL FIX: Add Authorization Header <<<
-        'Authorization': `Bearer ${token}` 
-    },
-    body: JSON.stringify({ amount: 3 }),
-});
+      const creditRes = await fetch('https://ai-application-post-create.onrender.com/api/credit/deduct', {
+        method: 'POST',
+        credentials: 'include',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({ amount: 3 }),
+      });
 
-if (creditRes.ok) {
-    setCredits(prev => prev - 3);
-} 
-       else {
+      if (creditRes.ok) {
+        setCredits(prev => prev - 3);
+      } else {
         toast.warning('Request submitted, but failed to update credits.');
       }
     } catch (err) {
@@ -110,8 +100,7 @@ if (creditRes.ok) {
     }
   };
 
-const usedCredits = credits !== null ? planCredits - credits : 0;
-
+  const usedCredits = credits !== null ? planCredits - credits : 0;
 
   return (
     <div className='homepage'>
@@ -138,36 +127,31 @@ const usedCredits = credits !== null ? planCredits - credits : 0;
 
       {/* Login modal */}
       {isModalOpen && (
-        <div className="modal-overlay" onClick={(e) => {
-          if (e.target.classList.contains('modal-overlay')) closeLoginModal();
-        }}>
-          <div className="modal-content">
-            <button className="close-btn" onClick={closeLoginModal}>&times;</button>
-            <Login
-              closeModal={closeLoginModal}
-              // >>> CRUCIAL FIX: Pass a function to handle successful credit data <<<
-              onLoginSuccess={(userData) => { // userData should contain { credits }
-                  if (userData.credits !== undefined) {
-                      setCredits(userData.credits);
-                      setIsLoggedIn(true);
-                      closeLoginModal(); // Close the modal immediately after updating state
-                  }
+        <div
+          className="modal-overlay"
+          onClick={(e) => {
+            if (e.target.classList.contains('modal-overlay')) closeLoginModal();
+          }}
+        >
+          <div className="modal-content">
+            <button className="close-btn" onClick={closeLoginModal}>&times;</button>
+            <Login
+              closeModal={closeLoginModal}
+              // >>> CRUCIAL FIX: Pass a function to handle successful credit data <<<
+              onLoginSuccess={(userData) => {
+                // userData should contain { credits }
+                if (userData.credits !== undefined) {
+                  setCredits(userData.credits);
+                  setIsLoggedIn(true);
+                  closeLoginModal(); // Close modal immediately after updating state
+                }
               }}
-            />
-            
-          </div>
-        </div>
-      </div>
+            />
+          </div>
+        </div>
+      )}
     </div>
   );
-      
 }
 
 export default Home;
-
-
-
-
-
-
-
