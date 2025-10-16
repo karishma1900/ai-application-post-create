@@ -56,13 +56,13 @@ const Header = () => {
           <button className="login-btn" onClick={openLoginModal}>Login</button>
         ) : (
           <div className="profile">
-            {profileImage && (
+            /* {profileImage && (
               <img
                 src={profileImage}
                 alt="Profile"
                 className="profile-image"
               />
-            )}
+            )} */
             {/* <div className="profile-info">
               <p className="user-email">{userEmail}</p>
               <p className="user-credits">Credits: {credits !== null ? credits : 'Loading...'}</p>
@@ -98,3 +98,4 @@ const Header = () => {
 };
 
 export default Header;
+
