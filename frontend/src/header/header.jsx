@@ -49,7 +49,7 @@ const Header = () => {
 
   return (
     <header className="header">
-      <div className="logo">AI App</div>
+      {/* <div className="logo">AI App</div> */}
 
       <div className="auth-buttons">
         {!isLoggedIn ? (
@@ -98,5 +98,6 @@ const Header = () => {
 };
 
 export default Header;
+
 
 
