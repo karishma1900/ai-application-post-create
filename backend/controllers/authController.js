@@ -140,11 +140,18 @@ async function refreshToken(req, res) {
 }
 
 function logout(req, res) {
-  res.clearCookie('refreshToken', { path: '/api/auth/refresh' });
+  res.clearCookie('refreshToken', {
+    httpOnly: true,
+    secure: isProduction,
+    sameSite: isProduction ? 'None' : 'Lax',
+    path: '/api/auth/refresh',
+  });
   res.json({ message: 'Logged out' });
 }
 
+
 export { register, login, logout, refreshToken };
+
 
 
 
